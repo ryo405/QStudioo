@@ -211,6 +211,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 .page-slide-back{animation:slideL .26s cubic-bezier(.4,0,.2,1) both;}
 @keyframes slideR{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
 @keyframes slideL{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
 /* ─ PAGE HEADER ─ */
@@ -497,9 +498,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 .bs-link span{flex:1;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* VERSION BADGE */
-.version-badge{position:fixed;bottom:14px;right:14px;z-index:50;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:6px 12px;display:flex;flex-direction:column;align-items:flex-end;gap:1px;pointer-events:none;}
-.vb-name{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.vb-by{font-size:10px;color:var(--muted);}
+.version-badge{position:fixed;bottom:14px;right:14px;z-index:50;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:3px 8px;display:flex;flex-direction:column;align-items:flex-end;gap:0;pointer-events:none;opacity:0.7;}
+.vb-name{font-family:'Syne',sans-serif;font-size:9px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.vb-by{font-size:8px;color:var(--muted);}
 
 /* COMMENTS */
 .cmt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:110;opacity:0;pointer-events:none;transition:opacity .3s;}
@@ -532,9 +533,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 .cmt-send:hover{opacity:.85;}
 
 /* BADGES */
-.badge{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-size:10px;margin-left:3px;vertical-align:middle;}
-.badge.owner{background:linear-gradient(135deg,#f7c948,#ff9500);color:#000;width:16px;height:16px;font-size:9px;box-shadow:0 0 6px rgba(247,201,72,.5);}
-.badge.verified{background:linear-gradient(135deg,#4f9fff,#7c6fff);color:#fff;width:15px;height:15px;font-size:9px;font-weight:900;}
+.badge{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;margin-left:3px;vertical-align:middle;}
+.badge.owner{background:linear-gradient(135deg,#1d9bf0,#7c6fff);color:#fff;width:16px;height:16px;font-size:9px;font-weight:900;box-shadow:0 0 6px rgba(29,155,240,.4);}
+.badge.verified{background:linear-gradient(135deg,#1d9bf0,#7c6fff);color:#fff;width:15px;height:15px;font-size:9px;font-weight:900;}
+
+/* PULL TO REFRESH */
+.ptr-indicator{position:fixed;top:0;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:6px 14px;font-size:12px;color:var(--muted2);z-index:200;transition:all .3s;opacity:0;pointer-events:none;margin-top:-40px;}
+.ptr-indicator.show{opacity:1;margin-top:12px;}
 
 /* TOAST */
 .toast{position:fixed;bottom:18px;right:18px;z-index:200;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:10px 15px;font-size:13px;display:flex;align-items:center;gap:7px;box-shadow:0 8px 28px rgba(0,0,0,.4);animation:toastIn .25s ease;pointer-events:none;}
@@ -724,15 +729,21 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
   <div class="pages">
     <!-- HOME -->
     <div class="page active" id="page-home">
-      <div class="scroll-content">
+      <div class="scroll-content" id="homeScroll">
         <div class="home-wrap">
           <div class="home-h">
-            <div class="home-title" id="homeGreet">✦ Beranda</div>
-            <div class="home-sub">Konten terbaru dari komunitas QStudio</div>
+            <div>
+              <div class="home-title" id="homeGreet">Beranda</div>
+              <div class="home-sub">Konten terbaru dari komunitas QStudio</div>
+            </div>
+            <button onclick="refreshFeed(this)" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:7px 10px;color:var(--muted2);cursor:pointer;display:flex;align-items:center;gap:5px;font-size:12px;font-family:'DM Sans',sans-serif;">
+              <svg id="refreshIcon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Refresh
+            </button>
           </div>
           <div class="stories" id="storiesRow">
             <div class="story story-add" onclick="goPage('upload','forward')">
-              <div class="story-ring"><div class="story-inner">➕</div></div>
+              <div class="story-ring"><div class="story-inner">+</div></div>
               <span class="story-label">Post</span>
             </div>
           </div>
@@ -740,6 +751,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
         </div>
       </div>
     </div>
+
+    <div class="ptr-indicator" id="ptrIndicator">Merefresh feed...</div>
 
     <!-- UPLOAD -->
     <div class="page" id="page-upload">
@@ -1023,29 +1036,24 @@ const splashInterval = setInterval(()=>{
       document.getElementById('splashScreen').classList.add('hide');
       setTimeout(()=>{
         document.getElementById('splashScreen').style.display='none';
+        // Cek auth state SETELAH splash selesai
+        auth.onAuthStateChanged(user => {
+          if(user){
+            S.auth = user;
+            loadUserProfile(user.uid).then(()=>{
+              document.getElementById('onboarding').classList.remove('show');
+              document.getElementById('authScreen').classList.remove('show');
+              showApp();
+            });
+          } else {
+            const seenOb = localStorage.getItem('qs_ob');
+            if(seenOb){ showAuth(); }
+            else { document.getElementById('onboarding').classList.add('show'); }
+          }
+        });
       }, 500);
     }, 200);
   }
-}, 30);
-
-// Firebase auth state listener — runs after splash
-auth.onAuthStateChanged(user => {
-  if(user){
-    S.auth = user;
-    loadUserProfile(user.uid).then(()=>{
-      document.getElementById('onboarding').classList.remove('show');
-      document.getElementById('authScreen').classList.remove('show');
-      showApp();
-    });
-  } else {
-    // Not logged in — show onboarding or auth
-    setTimeout(()=>{
-      const seenOb = localStorage.getItem('qs_ob');
-      if(seenOb){ showAuth(); }
-      else { document.getElementById('onboarding').classList.add('show'); }
-    }, 1600);
-  }
-});
 
 async function loadUserProfile(uid){
   try {
@@ -1365,8 +1373,8 @@ function isOwner(uid){ return OWNER_UIDS.includes(uid); }
 function isVerified(uid){ return VERIFIED_UIDS.includes(uid); }
 
 function getBadge(uid){
-  if(isOwner(uid)) return '<span class="badge owner" title="Owner">👑</span>';
-  if(isVerified(uid)) return '<span class="badge verified" title="Verified">✓</span>';
+  if(isOwner(uid)) return '<span class="badge owner" title="Owner">&#10003;</span>';
+  if(isVerified(uid)) return '<span class="badge verified" title="Verified">&#10003;</span>';
   return '';
 }
 
@@ -1599,22 +1607,29 @@ function renderProfile(){
   document.getElementById('profName').textContent=name;
   document.getElementById('profHandle').textContent=handle+(p.loc?' · '+p.loc:'');
   document.getElementById('profBio').textContent=p.bio||'Belum ada bio. Edit profil untuk menambahkan.';
-  document.getElementById('statPosts').textContent=S.posts.length;
+  const myPosts = S.posts.filter(post=>post.uid===S.auth?.uid);
+  document.getElementById('statPosts').textContent=myPosts.length;
   const av=document.getElementById('profAvInner');
   if(p.avUrl){av.innerHTML=`<img src="${p.avUrl}">`;}
-  else{const init=name==='Pengguna Baru'?'👤':name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();av.textContent=init;}
+  else{const init=name==='Pengguna Baru'?'?':name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();av.textContent=init;}
   const ta=document.getElementById('topAvatar');
   if(p.avUrl){ta.innerHTML=`<img src="${p.avUrl}">`;}
   else{ta.textContent=name==='Pengguna Baru'?'Q':name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
   renderPostsWrap();
 }
+
 function renderPostsWrap(){
   const wrap=document.getElementById('profPostsWrap'); if(!wrap) return;
-  if(S.posts.length===0){wrap.innerHTML=`<div class="empty" style="min-height:200px"><div class="empty-ico">🎨</div><div class="empty-t">Belum ada post</div><div class="empty-s">Postkan karya pertamamu!</div><button class="empty-btn" onclick="goPage('upload','forward')"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Post Karya</button></div>`;return;}
+  const myPosts = S.posts.filter(post=>post.uid===S.auth?.uid);
+  if(myPosts.length===0){
+    wrap.innerHTML=`<div class="empty" style="min-height:200px"><div class="empty-ico">🎨</div><div class="empty-t">Belum ada post</div><div class="empty-s">Postkan karya pertamamu!</div><button class="empty-btn" onclick="goPage('upload','forward')"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Post Karya</button></div>`;
+    return;
+  }
   if(S.view==='grid'){
-    wrap.innerHTML=`<div class="prof-grid">${S.posts.flatMap(p=>p.files).slice(0,9).map(f=>f.type.startsWith('video')?`<div class="pg-item"><video src="${f.url}"></video></div>`:`<div class="pg-item"><img src="${f.url}"></div>`).join('')||S.posts.filter(p=>p.files.length===0).slice(0,3).map(p=>`<div class="pg-item" style="background:var(--surface3)"><div style="padding:8px;font-size:11px;color:var(--muted2);text-align:center">${p.cap.slice(0,30)}</div></div>`).join('')}</div>`;
+    const items = myPosts.flatMap(p=>(p.files||[]).map(f=>({f,p}))).slice(0,9);
+    wrap.innerHTML=`<div class="prof-grid">${items.length>0?items.map(({f,p})=>f.type&&f.type.startsWith('video')?`<div class="pg-item" onclick="openBS('${p.id}')"><video src="${f.url}"></video></div>`:`<div class="pg-item" onclick="openBS('${p.id}')"><img src="${f.url}"></div>`).join(''):myPosts.slice(0,3).map(p=>`<div class="pg-item" style="background:var(--surface3)" onclick="openBS('${p.id}')"><div style="padding:8px;font-size:11px;color:var(--muted2);text-align:center">${(p.cap||'').slice(0,30)}</div></div>`).join('')}</div>`;
   } else {
-    wrap.innerHTML=`<div class="prof-list">${S.posts.map((p,i)=>{const thumb=p.files[0]?(p.files[0].type.startsWith('video')?`<video src="${p.files[0].url}"></video>`:`<img src="${p.files[0].url}">`):'';return `<div class="pl-item" style="animation-delay:${i*.04}s" onclick="openBS(${p.id})"><div class="pl-thumb">${thumb||'📝'}</div><div class="pl-info"><div class="pl-cap">${p.cap||'Post tanpa caption'}</div><div class="pl-meta">${p.time} · ${p.likes} suka</div></div></div>`;}).join('')}</div>`;
+    wrap.innerHTML=`<div class="prof-list">${myPosts.map((p,i)=>{const thumb=(p.files||[])[0]?(p.files[0].type&&p.files[0].type.startsWith('video')?`<video src="${p.files[0].url}"></video>`:`<img src="${p.files[0].url}">`):'';return `<div class="pl-item" style="animation-delay:${i*.04}s" onclick="openBS('${p.id}')"><div class="pl-thumb">${thumb||'📝'}</div><div class="pl-info"><div class="pl-cap">${p.cap||'Post tanpa caption'}</div><div class="pl-meta">${p.timeStr||''} · ${(p.likedBy||[]).length} suka</div></div></div>`;}).join('')}</div>`;
   }
 }
 function setView(v){S.view=v;document.getElementById('vtGrid').classList.toggle('active',v==='grid');document.getElementById('vtList').classList.toggle('active',v==='list');renderPostsWrap();}
@@ -1660,7 +1675,35 @@ async function saveProfile(){
   } catch(e){ toast('Gagal simpan: '+e.message); }
 }
 
-/* ══ SETTINGS ══ */
+function refreshFeed(btn){
+  const icon = document.getElementById('refreshIcon');
+  icon.style.animation = 'spin 0.6s linear';
+  setTimeout(()=>icon.style.animation='', 700);
+  loadPosts();
+  toast('Feed diperbarui!');
+}
+
+// Pull to refresh
+let ptrStartY = 0, ptrPulling = false;
+document.addEventListener('touchstart', e=>{
+  const scroll = document.getElementById('homeScroll');
+  if(scroll && scroll.scrollTop===0) { ptrStartY = e.touches[0].clientY; ptrPulling=true; }
+}, {passive:true});
+document.addEventListener('touchmove', e=>{
+  if(!ptrPulling) return;
+  const diff = e.touches[0].clientY - ptrStartY;
+  if(diff > 60) document.getElementById('ptrIndicator').classList.add('show');
+}, {passive:true});
+document.addEventListener('touchend', e=>{
+  if(!ptrPulling) return;
+  ptrPulling = false;
+  const ind = document.getElementById('ptrIndicator');
+  if(ind.classList.contains('show')){
+    ind.classList.remove('show');
+    loadPosts();
+    toast('Feed diperbarui!');
+  }
+});
 function toggleSwitch(el){el.classList.toggle('on');}
 
 /* ══ TOAST ══ */
