@@ -531,6 +531,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 .cmt-send{width:30px;height:30px;background:linear-gradient(135deg,var(--accent),#9b94ff);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:all .2s;flex-shrink:0;}
 .cmt-send:hover{opacity:.85;}
 
+/* BADGES */
+.badge{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-size:10px;margin-left:3px;vertical-align:middle;}
+.badge.owner{background:linear-gradient(135deg,#f7c948,#ff9500);color:#000;width:16px;height:16px;font-size:9px;box-shadow:0 0 6px rgba(247,201,72,.5);}
+.badge.verified{background:linear-gradient(135deg,#4f9fff,#7c6fff);color:#fff;width:15px;height:15px;font-size:9px;font-weight:900;}
+
 /* TOAST */
 .toast{position:fixed;bottom:18px;right:18px;z-index:200;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:10px 15px;font-size:13px;display:flex;align-items:center;gap:7px;box-shadow:0 8px 28px rgba(0,0,0,.4);animation:toastIn .25s ease;pointer-events:none;}
 @keyframes toastIn{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}
@@ -952,7 +957,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
               <a class="soc-item" href="https://discord.gg/servermu" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#5865f2,#7289da)">🎮</div><div class="soc-info"><div class="soc-name">Discord</div><div class="soc-handle">Server QStudio</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
             </div>
           </div>
-          <div class="set-about">QStudio v1.0<br><span>UI Preview — Firebase coming soon 🚀</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
+          <div class="set-about">QStudio v1.1<br><span>Firebase Realtime — Auth, Posts, Chat aktif</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
         </div>
       </div>
     </div>
@@ -989,7 +994,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 
 <!-- VERSION BADGE -->
 <div class="version-badge">
-  <span class="vb-name">QStudio v1.0</span>
+  <span class="vb-name">QStudio v1.1</span>
   <span class="vb-by">By Ryo · Qyro</span>
 </div>
 
@@ -1210,9 +1215,14 @@ function showApp(){
   const greet=hour<11?'🌅 Selamat Pagi':hour<15?'☀️ Selamat Siang':hour<18?'🌤️ Selamat Sore':'🌙 Selamat Malam';
   const name=S.profile.first||'Sobat';
   document.getElementById('homeGreet').textContent=greet+', '+name+'!';
-  // Listen online users
+  // Listen online users - auto refresh chat
   rtdb.ref('online').on('value', snap=>{
     S.onlineUsers = snap.val()||{};
+    // refresh chat list kalau lagi di halaman chat
+    const chatPage = document.getElementById('pgChat');
+    if(chatPage && chatPage.classList.contains('active')){
+      renderChatList();
+    }
   });
 }
 
@@ -1281,7 +1291,7 @@ function renderFeed(){
     return `<div class="post-card" style="animation-delay:${i*.05}s" onclick="openBS('${p.id}')">
       <div class="post-head" onclick="event.stopPropagation()">
         <div class="post-av" style="background:${p.avUrl?'none':p.bg||'var(--accent)'}">${avHTML}</div>
-        <div class="post-info"><div class="post-name">${p.name||'User'}</div><div class="post-cats">${cats}</div></div>
+        <div class="post-info"><div class="post-name">${p.name||'User'}${getBadge(p.uid)}</div><div class="post-cats">${cats}</div></div>
         <div class="post-time">${p.timeStr||''}</div>
       </div>
       ${media?`<div>${media}</div>`:''}
@@ -1344,8 +1354,21 @@ function openBS(id){
 function closeBS(){document.getElementById('bsOverlay').classList.remove('open');document.getElementById('bsSheet').classList.remove('open');}
 
 /* ══ UPLOAD — Cloudinary ══ */
-const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/demo/upload';
-const CLOUDINARY_PRESET = 'ml_default';
+const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/demoqstudio/upload';
+const CLOUDINARY_PRESET = 'qstudio_unsigned';
+
+// Owner UIDs — tambah UID kamu di sini
+const OWNER_UIDS = ['kYQi77AKzhf2712N3D7jwuPabOs2'];
+const VERIFIED_UIDS = ['kYQi77AKzhf2712N3D7jwuPabOs2'];
+
+function isOwner(uid){ return OWNER_UIDS.includes(uid); }
+function isVerified(uid){ return VERIFIED_UIDS.includes(uid); }
+
+function getBadge(uid){
+  if(isOwner(uid)) return '<span class="badge owner" title="Owner">👑</span>';
+  if(isVerified(uid)) return '<span class="badge verified" title="Verified">✓</span>';
+  return '';
+}
 
 const upDrop=document.getElementById('upDrop');
 upDrop.addEventListener('dragover',e=>{e.preventDefault();upDrop.classList.add('over');});
@@ -1362,12 +1385,12 @@ function addPrev(f){
 function toggleCat(el){el.classList.toggle('sel');const c=el.dataset.cat,i=S.cats.indexOf(c);i>-1?S.cats.splice(i,1):S.cats.push(c);}
 
 async function uploadToCloudinary(file){
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', CLOUDINARY_PRESET);
-  const res = await fetch(CLOUDINARY_URL, {method:'POST', body:fd});
-  const data = await res.json();
-  return { url: data.secure_url, type: file.type };
+  // Pakai base64 dulu, nanti bisa diganti Cloudinary
+  return new Promise((resolve)=>{
+    const reader = new FileReader();
+    reader.onload = e => resolve({ url: e.target.result, type: file.type });
+    reader.readAsDataURL(file);
+  });
 }
 
 async function submitPost(){
@@ -1426,51 +1449,55 @@ let chatRoomRef = null;
 let chatRoomListener = null;
 
 function renderChatList(){
-  const onlineCount = Object.keys(S.onlineUsers).length;
-  document.getElementById('onlineCountTxt').textContent=`${onlineCount} online sekarang`;
-  // Load chat rooms dari RTDB
-  rtdb.ref('chatrooms').orderByChild('lastTs').limitToLast(20).once('value', snap=>{
-    const rooms = snap.val()||{};
-    const list = document.getElementById('chatUserList');
-    const roomArr = Object.entries(rooms).reverse();
-    if(roomArr.length===0){
-      list.innerHTML=`<div class="empty"><div class="empty-ico">💬</div><div class="empty-t">Belum ada percakapan</div><div class="empty-s">Fitur chat akan aktif saat ada user lain bergabung.</div></div>`;
-      return;
-    }
-    list.innerHTML = roomArr.map(([rid, r])=>{
-      const isOnline = S.onlineUsers[r.otherUid] !== undefined;
-      return `<div class="chat-item" onclick="openRoom('${rid}','${r.otherName||'User'}')">
-        <div class="ci-av" style="background:linear-gradient(135deg,var(--accent),var(--accent2))">${(r.otherName||'U')[0]}${isOnline?'<div class="ci-online"></div>':''}</div>
-        <div class="ci-info">
-          <div class="ci-name">${r.otherName||'User'}</div>
-          <div class="ci-prev">${r.lastMsg||'Mulai percakapan'}</div>
-        </div>
-        <div class="ci-meta"><div class="ci-time">${r.lastTime||''}</div></div>
-      </div>`;
-    }).join('');
-  });
+  const onlineUsers = S.onlineUsers || {};
+  const myUid = S.auth?.uid;
+  const others = Object.entries(onlineUsers).filter(([uid])=>uid!==myUid);
+  const onlineCount = Object.keys(onlineUsers).length;
+  document.getElementById('onlineCountTxt').textContent = onlineCount > 0 ? `${onlineCount} user online` : 'Belum ada yang online';
+  const list = document.getElementById('chatUserList');
+  if(others.length === 0){
+    list.innerHTML=`<div class="empty"><div class="empty-ico">💬</div><div class="empty-t">Belum ada user online</div><div class="empty-s">Saat ada user lain login, mereka akan muncul di sini.</div></div>`;
+    return;
+  }
+  list.innerHTML = others.map(([uid, u])=>{
+    const roomId = [myUid, uid].sort().join('_');
+    const name = u.name || 'User';
+    const initial = name[0].toUpperCase();
+    const badge = getBadge(uid);
+    return `<div class="chat-item" onclick="openRoom('${roomId}','${name}','${uid}')">
+      <div class="ci-av" style="background:linear-gradient(135deg,var(--accent),var(--accent2));position:relative">
+        ${initial}
+        <div class="ci-online"></div>
+      </div>
+      <div class="ci-info">
+        <div class="ci-name">${name}${badge}</div>
+        <div class="ci-prev">Tap untuk mulai chat</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function filterChats(v){}
 function switchTab(el){document.querySelectorAll('.chat-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
 
-function openRoom(roomId, name){
-  if(chatRoomListener) chatRoomRef?.off('child_added', chatRoomListener);
-  document.getElementById('crName').textContent=name;
-  document.getElementById('crDot').style.background='var(--accent3)';
-  document.getElementById('crStatusTxt').textContent='Online';
-  const msgs=document.getElementById('crMsgs');
-  msgs.innerHTML=`<div class="day-sep"><span>Hari ini</span></div>`;
-  chatRoomRef = rtdb.ref('messages/'+roomId);
-  chatRoomListener = chatRoomRef.limitToLast(50).on('child_added', snap=>{
+function openRoom(roomId, name, otherUid){
+  if(chatRoomListener){ rtdb.ref('messages/'+S.chatId)?.off(); }
+  document.getElementById('crName').textContent = name;
+  document.getElementById('crDot').style.background = 'var(--accent3)';
+  document.getElementById('crStatusTxt').textContent = 'Online';
+  const msgs = document.getElementById('crMsgs');
+  msgs.innerHTML = `<div class="day-sep"><span>Hari ini</span></div>`;
+  S.chatId = roomId;
+  rtdb.ref('messages/'+roomId).limitToLast(50).on('child_added', snap=>{
     const m = snap.val();
     const isMe = m.uid === S.auth?.uid;
-    const d=document.createElement('div'); d.className=`msg-row ${isMe?'out':'in'}`;
-    d.innerHTML=(!isMe?`<div class="msg-sender">${m.name||'User'}</div>`:'')+
+    const d = document.createElement('div');
+    d.className = `msg-row ${isMe?'out':'in'}`;
+    d.innerHTML = (!isMe?`<div class="msg-sender">${m.name||'User'}</div>`:'')+
       `<div class="msg-bub">${m.text}</div><div class="msg-time">${m.time||''}</div>`;
-    msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight;
+    msgs.appendChild(d);
+    msgs.scrollTop = msgs.scrollHeight;
   });
-  S.chatId = roomId;
   goPage('chatroom','forward');
 }
 
@@ -1487,7 +1514,6 @@ async function sendMsg(){
     uid: S.auth.uid, name, text:txt, time:now,
     ts: firebase.database.ServerValue.TIMESTAMP
   });
-  await rtdb.ref('chatrooms/'+S.chatId).update({lastMsg:txt, lastTime:now, lastTs: firebase.database.ServerValue.TIMESTAMP});
 }
 
 /* ══ COMMENTS — Firestore ══ */
@@ -1607,19 +1633,31 @@ function loadEP(){
 function handleAvChange(inp){if(!inp.files[0])return;const url=URL.createObjectURL(inp.files[0]);S.profile.avUrl=url;document.getElementById('epAvEl').innerHTML=`<img src="${url}"><div class="ep-av-overlay">📷</div>`;}
 function fmtUser(inp){let v=inp.value.replace(/[^a-zA-Z0-9_.@]/g,'');if(v&&!v.startsWith('@'))v='@'+v;inp.value=v;}
 async function saveProfile(){
-  const fn=document.getElementById('epFirst').value.trim(); if(!fn){toast('⚠️ Nama depan wajib diisi!');return;}
+  const fn=document.getElementById('epFirst').value.trim(); if(!fn){toast('Nama depan wajib diisi!');return;}
   S.profile.first=fn; S.profile.last=document.getElementById('epLast').value.trim();
   S.profile.user=document.getElementById('epUser').value.trim().replace(/^@/,'');
   S.profile.bio=document.getElementById('epBio').value.trim(); S.profile.loc=document.getElementById('epLoc').value.trim(); S.profile.web=document.getElementById('epWeb').value.trim();
   try {
-    await db.collection('users').doc(S.auth.uid).update({
+    const uid = S.auth.uid;
+    const name = [S.profile.first, S.profile.last].filter(Boolean).join(' ');
+    const initials = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
+    // Update user profile
+    await db.collection('users').doc(uid).update({
       first:S.profile.first, last:S.profile.last, user:S.profile.user,
       bio:S.profile.bio, loc:S.profile.loc, web:S.profile.web,
       avUrl:S.profile.avUrl||''
     });
-    toast('✅ Profil disimpan!');
+    // Update nama di semua post milik user ini
+    const posts = await db.collection('posts').where('uid','==',uid).get();
+    const batch = db.batch();
+    posts.forEach(doc=>{
+      batch.update(doc.ref, { name, av: initials, avUrl: S.profile.avUrl||'' });
+    });
+    await batch.commit();
+    toast('Profil disimpan!');
+    renderProfile();
     setTimeout(()=>goBack(),600);
-  } catch(e){ toast('⚠️ Gagal simpan: '+e.message); }
+  } catch(e){ toast('Gagal simpan: '+e.message); }
 }
 
 /* ══ SETTINGS ══ */
