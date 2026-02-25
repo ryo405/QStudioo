@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QStudio</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -25,6 +24,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const rtdb = firebase.database();
 </script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#09090f;--surface:#111118;--surface2:#181825;--surface3:#1f1f2e;
@@ -1622,69 +1622,7 @@ async function saveProfile(){
   } catch(e){ toast('⚠️ Gagal simpan: '+e.message); }
 }
 
-/* ══ COMMENTS ══ */
-let cmtPostId = null;
-
-function openComments(id){
-  cmtPostId = id;
-  const p = S.posts.find(p=>p.id===id); if(!p) return;
-  // update my avatar in input
-  const myAv = document.getElementById('cmtMyAv');
-  if(S.profile.avUrl) myAv.innerHTML=`<img src="${S.profile.avUrl}">`;
-  else { const n=[S.profile.first,S.profile.last].filter(Boolean).join(' ')||'Q'; myAv.textContent=n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
-  renderComments(p);
-  document.getElementById('cmtOverlay').classList.add('open');
-  document.getElementById('cmtSheet').classList.add('open');
-  setTimeout(()=>document.getElementById('cmtInput').focus(),400);
-}
-
-function closeComments(){
-  document.getElementById('cmtOverlay').classList.remove('open');
-  document.getElementById('cmtSheet').classList.remove('open');
-  cmtPostId=null;
-}
-
-function renderComments(p){
-  const list = document.getElementById('cmtList');
-  if(!p.commentList||p.commentList.length===0){
-    list.innerHTML=`<div class="cmt-empty"><div class="cmt-empty-ico">💬</div><div class="cmt-empty-t">Belum ada komentar. Jadilah yang pertama!</div></div>`;
-    return;
-  }
-  list.innerHTML = p.commentList.map(c=>{
-    const avHTML = c.avUrl?`<img src="${c.avUrl}">`:(c.av||'?');
-    return `<div class="cmt-item">
-      <div class="cmt-av">${avHTML}</div>
-      <div class="cmt-body">
-        <div class="cmt-name">${c.name}</div>
-        <div class="cmt-text">${c.text}</div>
-        <div class="cmt-time">${c.time}</div>
-      </div>
-    </div>`;
-  }).join('');
-  list.scrollTop = list.scrollHeight;
-}
-
-function sendComment(){
-  const inp = document.getElementById('cmtInput');
-  const txt = inp.value.trim(); if(!txt||!cmtPostId) return;
-  const p = S.posts.find(p=>p.id===cmtPostId); if(!p) return;
-  if(!p.commentList) p.commentList=[];
-  const prof = S.profile;
-  const name = [prof.first,prof.last].filter(Boolean).join(' ')||'Pengguna';
-  const av = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'Q';
-  p.commentList.push({
-    name, av, avUrl:prof.avUrl||null, text:txt,
-    time: new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})
-  });
-  p.comments = p.commentList.length;
-  inp.value='';
-  renderComments(p);
-  renderFeed();
-}
-
-document.getElementById('cmtInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendComment();});
-
-/* ══ COMMENTS ══ */
+/* ══ SETTINGS ══ */
 function toggleSwitch(el){el.classList.toggle('on');}
 
 /* ══ TOAST ══ */
