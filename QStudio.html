@@ -33,6 +33,11 @@ const rtdb = firebase.database();
   --text:#eeeef8;--muted:#6060a0;--muted2:#9090c0;
   --sidebar:68px;--topbar:58px;
 }
+body.light{
+  --bg:#f4f4fb;--surface:#ffffff;--surface2:#ebebf8;--surface3:#e0e0f0;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.13);
+  --text:#111118;--muted:#8888aa;--muted2:#666680;
+}
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;overflow:hidden;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;}
@@ -834,7 +839,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
         <div class="prof-info">
           <div class="prof-name" id="profName">Pengguna Baru</div>
           <div class="prof-handle" id="profHandle">@username</div>
-          <div class="prof-badges"><span class="prof-badge">✦ Member</span></div>
+          <div class="prof-badges" id="profBadges"><span class="prof-badge">Member</span></div>
           <div class="prof-bio" id="profBio">Belum ada bio. Edit profil untuk menambahkan.</div>
         </div>
         <div class="prof-stats">
@@ -927,7 +932,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
           <div class="set-section">
             <div class="set-sec-label">Tampilan</div>
             <div class="set-group">
-              <div class="set-item"><div class="set-icon" style="background:rgba(61,255,160,.15)">🌙</div><div class="set-label"><div class="set-name">Mode Gelap</div><div class="set-desc">Tema saat ini</div></div><div class="toggle on" onclick="toggleSwitch(this)"></div></div>
+              <div class="set-item"><div class="set-icon" style="background:rgba(61,255,160,.15)" id="themeIcon">🌙</div><div class="set-label"><div class="set-name" id="themeLabel">Mode Gelap</div><div class="set-desc">Tap untuk ganti tema</div></div><div class="toggle on" id="themeToggle" onclick="toggleTheme(this)"></div></div>
             </div>
           </div>
           <div class="set-section">
@@ -1268,6 +1273,10 @@ function renderFeed(){
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           <span>${commentsCount}</span>
         </button>
+        ${(uid===p.uid||isOwner(uid))?`<button class="act-btn" style="margin-left:auto;color:#ff4d4d" onclick="event.stopPropagation();deletePost('${p.id}')">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          Hapus
+        </button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1347,12 +1356,33 @@ function addPrev(f){
 }
 function toggleCat(el){el.classList.toggle('sel');const c=el.dataset.cat,i=S.cats.indexOf(c);i>-1?S.cats.splice(i,1):S.cats.push(c);}
 
+async function compressImage(file, maxWidth=1080, quality=0.75){
+  return new Promise(resolve=>{
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = ()=>{
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if(w > maxWidth){ h = h*(maxWidth/w); w = maxWidth; }
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      canvas.toBlob(blob=>{
+        URL.revokeObjectURL(url);
+        resolve(new File([blob], file.name, {type:'image/jpeg'}));
+      },'image/jpeg', quality);
+    };
+    img.src=url;
+  });
+}
+
 async function uploadToCloudinary(file){
-  // Pakai base64 dulu, nanti bisa diganti Cloudinary
+  // Kompres dulu kalau gambar
+  let f = file;
+  if(file.type.startsWith('image/')) f = await compressImage(file);
   return new Promise((resolve)=>{
     const reader = new FileReader();
     reader.onload = e => resolve({ url: e.target.result, type: file.type });
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(f);
   });
 }
 
@@ -1367,9 +1397,12 @@ async function submitPost(){
   btn.textContent='⏳ Mengupload...'; btn.disabled=true;
 
   try {
-    // Upload files to Cloudinary
+    btn.innerHTML='Mengompres...'; 
     const uploadedFiles = S.files.length > 0
-      ? await Promise.all(S.files.map(f => uploadToCloudinary(f)))
+      ? await Promise.all(S.files.map(async (f,i)=>{
+          btn.innerHTML=`Mengupload ${i+1}/${S.files.length}...`;
+          return uploadToCloudinary(f);
+        }))
       : [];
 
     const prof=S.profile;
@@ -1561,15 +1594,29 @@ function renderProfile(){
   const handle=p.user?'@'+p.user.replace(/^@/,''):'@username';
   document.getElementById('profName').textContent=name;
   document.getElementById('profHandle').textContent=handle+(p.loc?' · '+p.loc:'');
-  document.getElementById('profBio').textContent=p.bio||'Belum ada bio. Edit profil untuk menambahkan.';
+  document.getElementById('profBio').textContent=p.bio||'Belum ada bio.';
   const myPosts = S.posts.filter(post=>post.uid===S.auth?.uid);
   document.getElementById('statPosts').textContent=myPosts.length;
+
+  // Badge
+  const uid = S.auth?.uid;
+  const badgeEl = document.getElementById('profBadges');
+  if(badgeEl){
+    if(isOwner(uid)) badgeEl.innerHTML=`<span class="prof-badge" style="background:rgba(29,155,240,.2);border-color:rgba(29,155,240,.5);color:#1d9bf0;font-weight:700">&#10003; Owner</span>`;
+    else badgeEl.innerHTML=`<span class="prof-badge">Member</span>`;
+  }
+
+  // Avatar
   const av=document.getElementById('profAvInner');
-  if(p.avUrl){av.innerHTML=`<img src="${p.avUrl}">`;}
-  else{const init=name==='Pengguna Baru'?'?':name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();av.textContent=init;}
   const ta=document.getElementById('topAvatar');
-  if(p.avUrl){ta.innerHTML=`<img src="${p.avUrl}">`;}
-  else{ta.textContent=name==='Pengguna Baru'?'Q':name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
+  if(p.avUrl){
+    av.innerHTML=`<img src="${p.avUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
+    ta.innerHTML=`<img src="${p.avUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`;
+  } else {
+    const init=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
+    av.textContent=init;
+    ta.textContent=init[0]||'Q';
+  }
   renderPostsWrap();
 }
 
@@ -1600,7 +1647,22 @@ function loadEP(){
   if(p.avUrl){av.innerHTML=`<img src="${p.avUrl}"><div class="ep-av-overlay">📷</div>`;}
   else{const name=[p.first,p.last].filter(Boolean).join(' ')||'';const init=name?name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase():'👤';av.innerHTML=`<span>${init}</span><div class="ep-av-overlay">📷</div>`;}
 }
-function handleAvChange(inp){if(!inp.files[0])return;const url=URL.createObjectURL(inp.files[0]);S.profile.avUrl=url;document.getElementById('epAvEl').innerHTML=`<img src="${url}"><div class="ep-av-overlay">📷</div>`;}
+async function handleAvChange(inp){
+  if(!inp.files[0]) return;
+  const file = inp.files[0];
+  const reader = new FileReader();
+  reader.onload = async e => {
+    const url = e.target.result;
+    S.profile.avUrl = url;
+    document.getElementById('epAvEl').innerHTML=`<img src="${url}"><div class="ep-av-overlay">Ganti</div>`;
+    // Auto save to Firestore
+    if(S.auth){
+      await db.collection('users').doc(S.auth.uid).update({ avUrl: url });
+      renderProfile();
+    }
+  };
+  reader.readAsDataURL(file);
+}
 function fmtUser(inp){let v=inp.value.replace(/[^a-zA-Z0-9_.@]/g,'');if(v&&!v.startsWith('@'))v='@'+v;inp.value=v;}
 async function saveProfile(){
   const fn=document.getElementById('epFirst').value.trim(); if(!fn){toast('Nama depan wajib diisi!');return;}
@@ -1659,6 +1721,37 @@ document.addEventListener('touchend', e=>{
     toast('Feed diperbarui!');
   }
 });
+async function deletePost(id){
+  if(!confirm('Hapus postingan ini?')) return;
+  try {
+    await db.collection('posts').doc(id).delete();
+    toast('Postingan dihapus!');
+  } catch(e){ toast('Gagal hapus: '+e.message); }
+}
+
+function toggleTheme(el){
+  el.classList.toggle('on');
+  const isLight = !el.classList.contains('on');
+  document.body.classList.toggle('light', isLight);
+  localStorage.setItem('qs_theme', isLight?'light':'dark');
+  document.getElementById('themeIcon').textContent = isLight ? '☀️' : '🌙';
+  document.getElementById('themeLabel').textContent = isLight ? 'Mode Terang' : 'Mode Gelap';
+}
+
+// Load saved theme
+const savedTheme = localStorage.getItem('qs_theme');
+if(savedTheme==='light'){
+  document.body.classList.add('light');
+  setTimeout(()=>{
+    const tog = document.getElementById('themeToggle');
+    if(tog){ tog.classList.remove('on'); }
+    const icon = document.getElementById('themeIcon');
+    if(icon){ icon.textContent='☀️'; }
+    const lbl = document.getElementById('themeLabel');
+    if(lbl){ lbl.textContent='Mode Terang'; }
+  }, 500);
+}
+
 function toggleSwitch(el){el.classList.toggle('on');}
 
 /* ══ TOAST ══ */
