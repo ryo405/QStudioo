@@ -677,7 +677,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 
 <div class="layout">
   <nav class="sidebar" id="mainSidebar">
-    <button class="nav-i" id="sidebarToggleBtn" onclick="toggleSidebar()" style="opacity:0.6">
+    <button class="nav-i" id="sidebarToggleBtn" onclick="toggleSidebar()" style="background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;color:#fff;margin-bottom:4px;" title="Sembunyikan sidebar">
       <svg id="sidebarToggleIcon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
     <button class="nav-i active" id="nav-home" onclick="goPage('home','back')">
@@ -706,6 +706,20 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
     <button class="nav-i" id="nav-settings" onclick="goPage('settings','forward')">
       <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
       <span class="nav-tip">Pengaturan</span>
+    </button>
+
+    <div style="flex:1"></div>
+
+    <!-- Tombol Back to Top -->
+    <button class="nav-i" onclick="scrollToTop()" title="Ke atas" style="opacity:0.6">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+      <span class="nav-tip">Ke atas</span>
+    </button>
+
+    <!-- Tombol Random Post -->
+    <button class="nav-i" onclick="openRandomPost()" title="Post acak" style="opacity:0.6">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+      <span class="nav-tip">Acak</span>
     </button>
   </nav>
 
@@ -745,22 +759,30 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
       </div>
       <div class="scroll-content">
         <div class="upload-wrap">
-          <!-- IMAGE URL INPUT -->
+          <!-- MEDIA URL INPUT -->
           <div class="form-group">
             <label class="form-label">Gambar / Video (via link)</label>
             <div style="display:flex;gap:8px;align-items:center">
-              <input class="form-input" id="imgUrlInput" placeholder="Paste link gambar... (imgur, imgbb, dll)" oninput="previewImgUrl(this.value)" style="flex:1">
+              <input class="form-input" id="imgUrlInput" placeholder="Paste link gambar atau video..." oninput="previewImgUrl(this.value)" style="flex:1">
               <button onclick="addImgUrl()" style="background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;padding:9px 14px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;font-weight:600">+ Tambah</button>
             </div>
             <div id="imgUrlPreview" style="margin-top:10px;display:none">
-              <img id="imgUrlPreviewImg" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;background:#000;border:1px solid var(--border)">
-              <div style="font-size:11px;color:var(--accent3);margin-top:4px">Preview gambar</div>
+              <img id="imgUrlPreviewImg" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;background:#111;border:1px solid var(--border)">
+              <video id="imgUrlPreviewVid" style="width:100%;max-height:200px;border-radius:10px;display:none" controls></video>
+              <div style="font-size:11px;color:var(--accent3);margin-top:4px">Preview media</div>
             </div>
-            <div style="margin-top:8px;font-size:11px;color:var(--muted)">
-              Cara dapat link gambar: upload ke <a href="https://imgbb.com" target="_blank" style="color:var(--accent)">imgbb.com</a> atau <a href="https://imgur.com" target="_blank" style="color:var(--accent)">imgur.com</a> → copy link langsung gambarnya
+            <div style="margin-top:8px;font-size:11px;color:var(--muted);line-height:1.6">
+              Cara dapat link gambar: upload ke <a href="https://imgbb.com" target="_blank" style="color:var(--accent)">imgbb.com</a> atau <a href="https://imgur.com" target="_blank" style="color:var(--accent)">imgur.com</a> lalu copy link langsung<br>
+              Cara dapat link video: upload ke <a href="https://streamable.com" target="_blank" style="color:var(--accent2)">streamable.com</a> atau <a href="https://www.youtube.com" target="_blank" style="color:var(--accent2)">YouTube</a> lalu copy link embed/direct
             </div>
           </div>
           <div class="prev-grid" id="prevGrid"></div>
+
+          <!-- TUTORIAL LINK -->
+          <div class="form-group">
+            <label class="form-label">Link Tutorial / Demo (opsional)</label>
+            <input class="form-input" id="tutorialInput" placeholder="https://youtube.com/... atau link tutorial">
+          </div>
           <div class="form-group"><label class="form-label">📝 Caption</label><textarea class="form-textarea" id="capInput" placeholder="Tulis caption..."></textarea></div>
           <div class="form-group"><label class="form-label">👤 Kreator / Developer</label><input class="form-input" id="devInput" placeholder="@nama_kamu"></div>
           <div class="form-group"><label class="form-label">🔗 Link (opsional)</label><input class="form-input" id="linkInput" placeholder="https://..."></div>
@@ -962,7 +984,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
               <a class="soc-item" href="https://discord.gg/servermu" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#5865f2,#7289da)">🎮</div><div class="soc-info"><div class="soc-name">Discord</div><div class="soc-handle">Server QStudio</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
             </div>
           </div>
-          <div class="set-about">QStudio v1.2<br><span>Search, Tema, Sidebar Toggle, Hapus Post</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
+          <div class="set-about">QStudio v1.3<br><span>URL Media, Tutorial Link, Tombol Baru</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
         </div>
       </div>
     </div>
@@ -999,7 +1021,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 
 <!-- VERSION BADGE -->
 <div class="version-badge">
-  <span class="vb-name">QStudio v1.2</span>
+  <span class="vb-name">QStudio v1.3</span>
   <span class="vb-by">By Ryo · Qyro</span>
 </div>
 
@@ -1284,6 +1306,7 @@ function renderFeed(){
     const media=(p.files||[]).map(f=>f.type&&f.type.startsWith('video')?`<video class="post-vid" src="${f.url}" controls></video>`:`<img class="post-img" src="${f.url}">`).join('');
     const cats=(p.cats||[]).map(c=>`<span class="post-cat">${catE[c]||'✨'} ${c}</span>`).join('');
     const lnk=p.link?`<a class="post-link" href="${p.link}" target="_blank"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>${p.link}</span></a>`:'';
+    const tut=p.tutorial?`<a class="post-link" href="${p.tutorial}" target="_blank" style="color:var(--accent2);border-color:rgba(255,107,138,.3)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><span>Tutorial / Demo</span></a>`:'';
     const dev=p.dev?`<div class="post-dev">by <b>${p.dev}</b></div>`:'';
     const liked=(p.likedBy||[]).includes(uid);
     const likesCount=(p.likedBy||[]).length;
@@ -1295,7 +1318,7 @@ function renderFeed(){
         <div class="post-time">${p.timeStr||''}</div>
       </div>
       ${media?`<div>${media}</div>`:''}
-      <div class="post-body">${p.cap?`<div class="post-cap">${p.cap}</div>`:''}${lnk}${dev}</div>
+      <div class="post-body">${p.cap?`<div class="post-cap">${p.cap}</div>`:''}${lnk}${tut}${dev}</div>
       <div class="post-actions" onclick="event.stopPropagation()">
         <button class="act-btn ${liked?'liked':''}" onclick="toggleLike('${p.id}',this)">
           <svg width="13" height="13" fill="${liked?'currentColor':'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -1363,10 +1386,21 @@ S.mediaUrls = []; // array of {url, type}
 function previewImgUrl(val){
   const preview = document.getElementById('imgUrlPreview');
   const img = document.getElementById('imgUrlPreviewImg');
+  const vid = document.getElementById('imgUrlPreviewVid');
   if(!val){ preview.style.display='none'; return; }
-  img.src = val;
-  img.onerror = ()=>{ preview.style.display='none'; };
-  img.onload = ()=>{ preview.style.display='block'; };
+  const isVideo = val.match(/\.(mp4|mov|webm|avi)$/i) || val.includes('streamable') || val.includes('youtube');
+  if(isVideo){
+    img.style.display='none';
+    vid.style.display='block';
+    vid.src = val;
+    preview.style.display='block';
+  } else {
+    vid.style.display='none';
+    img.style.display='block';
+    img.src = val;
+    img.onerror = ()=>{ preview.style.display='none'; };
+    img.onload = ()=>{ preview.style.display='block'; };
+  }
 }
 
 function addImgUrl(){
@@ -1397,6 +1431,7 @@ async function submitPost(){
   const cap=document.getElementById('capInput').value.trim();
   const dev=document.getElementById('devInput').value.trim();
   const link=document.getElementById('linkInput').value.trim();
+  const tutorial=document.getElementById('tutorialInput').value.trim();
   if(!cap && S.mediaUrls.length===0){ toast('Isi caption atau tambah gambar dulu!'); return; }
 
   const btn=document.querySelector('.submit-btn');
@@ -1413,7 +1448,7 @@ async function submitPost(){
       name, av: initials,
       bg: 'linear-gradient(135deg,#7c6fff,#ff6b8a)',
       avUrl: prof.avUrl||'',
-      cap, dev, link,
+      cap, dev, link, tutorial,
       cats: [...S.cats],
       files: [...S.mediaUrls],
       timeStr: now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),
@@ -1422,10 +1457,10 @@ async function submitPost(){
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    document.getElementById('capInput').value='';
-    document.getElementById('devInput').value='';
-    document.getElementById('linkInput').value='';
-    document.getElementById('imgUrlInput').value='';
+    // Reset form
+    ['capInput','devInput','linkInput','tutorialInput','imgUrlInput'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.value='';
+    });
     document.getElementById('prevGrid').innerHTML='';
     document.getElementById('imgUrlPreview').style.display='none';
     document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('sel'));
@@ -1747,6 +1782,18 @@ async function deletePost(id){
     await db.collection('posts').doc(id).delete();
     toast('Postingan dihapus!');
   } catch(e){ toast('Gagal hapus: '+e.message); }
+}
+
+function scrollToTop(){
+  const scroll = document.getElementById('homeScroll');
+  if(scroll) scroll.scrollTo({top:0, behavior:'smooth'});
+  else window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function openRandomPost(){
+  if(S.posts.length===0){ toast('Belum ada post!'); return; }
+  const random = S.posts[Math.floor(Math.random()*S.posts.length)];
+  openBS(random.id);
 }
 
 let sidebarVisible = true;
