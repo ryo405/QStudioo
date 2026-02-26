@@ -759,20 +759,20 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
       </div>
       <div class="scroll-content">
         <div class="upload-wrap">
-          <!-- MEDIA URL INPUT -->
+          <!-- UPLOAD GAMBAR LANGSUNG -->
           <div class="form-group">
-            <label class="form-label">Thumbnail / Gambar Preview</label>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input class="form-input" id="imgUrlInput" placeholder="Link gambar thumbnail (imgbb, imgur...)" oninput="previewImgUrl(this.value)" style="flex:1">
-              <button onclick="addImgUrl()" style="background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;padding:9px 14px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;font-weight:600">+ Tambah</button>
+            <label class="form-label">Thumbnail / Gambar</label>
+            <div id="uploadZone" onclick="document.getElementById('imgFileInput').click()" style="border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2)" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+              <input type="file" id="imgFileInput" accept="image/*" multiple style="display:none" onchange="uploadImages(this.files)">
+              <svg width="28" height="28" fill="none" stroke="var(--muted2)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <div style="margin-top:8px;font-size:13px;color:var(--muted2);font-weight:600">Tap untuk pilih gambar</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">JPG, PNG, GIF — langsung upload</div>
             </div>
-            <div id="imgUrlPreview" style="margin-top:10px;display:none">
-              <img id="imgUrlPreviewImg" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;background:#111;border:1px solid var(--border)">
-              <video id="imgUrlPreviewVid" style="width:100%;max-height:200px;border-radius:10px;display:none" controls></video>
-              <div style="font-size:11px;color:var(--accent3);margin-top:4px">Preview media</div>
-            </div>
-            <div style="margin-top:6px;font-size:11px;color:var(--muted)">
-              Upload thumbnail ke <a href="https://imgbb.com" target="_blank" style="color:var(--accent)">imgbb.com</a> → Direct link
+            <div id="uploadProgress" style="display:none;margin-top:10px">
+              <div style="background:var(--surface2);border-radius:99px;height:4px;overflow:hidden">
+                <div id="uploadBar" style="height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;transition:width .3s"></div>
+              </div>
+              <div id="uploadStatus" style="font-size:11px;color:var(--muted2);margin-top:5px;text-align:center">Mengupload...</div>
             </div>
           </div>
           <div class="prev-grid" id="prevGrid"></div>
@@ -780,8 +780,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
           <!-- DOWNLOAD LINK -->
           <div class="form-group">
             <label class="form-label">Link Download / File (opsional)</label>
-            <input class="form-input" id="downloadInput" placeholder="https://mediafire.com/... atau link file lainnya">
-            <div style="margin-top:6px;font-size:11px;color:var(--muted)">Link Mediafire, Google Drive, dll. Akan muncul sebagai tombol Download di post</div>
+            <input class="form-input" id="downloadInput" placeholder="https://mediafire.com/... link file rig dll">
           </div>
 
           <!-- TUTORIAL LINK -->
@@ -982,15 +981,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
             </div>
           </div>
           <div class="set-section">
-            <div class="set-sec-label">🔗 Link & Komunitas</div>
+            <div class="set-sec-label">Link & Komunitas</div>
             <div class="soc-group">
-              <a class="soc-item" href="https://wa.me/grouplink" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#25d366,#128c7e)">💬</div><div class="soc-info"><div class="soc-name">WhatsApp</div><div class="soc-handle">Grup Komunitas QStudio</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
-              <a class="soc-item" href="https://tiktok.com/@akunmu" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#010101,#69c9d0)">🎵</div><div class="soc-info"><div class="soc-name">TikTok</div><div class="soc-handle">@akunmu</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
-              <a class="soc-item" href="https://youtube.com/@channelmu" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#ff0000,#cc0000)">▶</div><div class="soc-info"><div class="soc-name">YouTube</div><div class="soc-handle">@channelmu</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
-              <a class="soc-item" href="https://discord.gg/servermu" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#5865f2,#7289da)">🎮</div><div class="soc-info"><div class="soc-name">Discord</div><div class="soc-handle">Server QStudio</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
+              <a class="soc-item" href="https://chat.whatsapp.com/ESSEWAs4MKd9BZyZiutLo0" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#25d366,#128c7e)">💬</div><div class="soc-info"><div class="soc-name">WhatsApp</div><div class="soc-handle">Grup Komunitas QStudio</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
+              <a class="soc-item" href="https://tiktok.com/@qyroweb" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#010101,#69c9d0)">🎵</div><div class="soc-info"><div class="soc-name">TikTok</div><div class="soc-handle">@qyroweb</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
+              <a class="soc-item" href="https://youtube.com/@qyroweb" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#ff0000,#cc0000)">▶</div><div class="soc-info"><div class="soc-name">YouTube</div><div class="soc-handle">@qyroweb</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
+              <a class="soc-item" href="https://github.com/ryo405" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#24292e,#444)">🐙</div><div class="soc-info"><div class="soc-name">GitHub</div><div class="soc-handle">ryo405</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
             </div>
           </div>
-          <div class="set-about">QStudio v1.5<br><span>Download Link, Thumbnail Terpisah</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
+          <div class="set-about">QStudio v1.6<br><span>Upload Langsung, Link WA, Sosmed</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
         </div>
       </div>
     </div>
@@ -1034,7 +1033,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 
 <!-- VERSION BADGE -->
 <div class="version-badge">
-  <span class="vb-name">QStudio v1.5</span>
+  <span class="vb-name">QStudio v1.6</span>
   <span class="vb-by">By Ryo · Qyro</span>
 </div>
 
@@ -1397,47 +1396,75 @@ function openBS(id){
 }
 function closeBS(){document.getElementById('bsOverlay').classList.remove('open');document.getElementById('bsSheet').classList.remove('open');}
 
-/* ══ UPLOAD — URL based ══ */
-S.mediaUrls = []; // array of {url, type}
+/* ══ UPLOAD — ImgBB API langsung ══ */
+const IMGBB_KEY = '5b6f5f4f7c0b2c0e7b3a4d6f8e9c1a2b'; // Free API key
+S.mediaUrls = [];
 
-function previewImgUrl(val){
-  const preview = document.getElementById('imgUrlPreview');
-  const img = document.getElementById('imgUrlPreviewImg');
-  const vid = document.getElementById('imgUrlPreviewVid');
-  if(!val){ preview.style.display='none'; return; }
-  const isVideo = val.match(/\.(mp4|mov|webm|avi)$/i) || val.includes('streamable') || val.includes('youtube');
-  if(isVideo){
-    img.style.display='none';
-    vid.style.display='block';
-    vid.src = val;
-    preview.style.display='block';
-  } else {
-    vid.style.display='none';
-    img.style.display='block';
-    img.src = val;
-    img.onerror = ()=>{ preview.style.display='none'; };
-    img.onload = ()=>{ preview.style.display='block'; };
+async function uploadImages(files){
+  if(!files.length) return;
+  const progress = document.getElementById('uploadProgress');
+  const bar = document.getElementById('uploadBar');
+  const status = document.getElementById('uploadStatus');
+  progress.style.display='block';
+  
+  for(let i=0; i<files.length; i++){
+    const file = files[i];
+    status.textContent = `Mengupload ${i+1}/${files.length}...`;
+    bar.style.width = ((i/files.length)*100)+'%';
+    
+    try {
+      const fd = new FormData();
+      fd.append('image', file);
+      fd.append('key', IMGBB_KEY);
+      const res = await fetch('https://api.imgbb.com/1/upload', {method:'POST', body:fd});
+      const data = await res.json();
+      if(data.success){
+        const url = data.data.display_url;
+        S.mediaUrls.push({url, type:'image/jpeg'});
+        addPrevUrl(url, false, S.mediaUrls.length-1);
+        bar.style.width = ((i+1)/files.length*100)+'%';
+      } else {
+        // Fallback: pakai base64 lokal
+        await uploadAsBase64(file);
+      }
+    } catch(e){
+      await uploadAsBase64(file);
+    }
   }
+  
+  status.textContent = 'Upload selesai!';
+  setTimeout(()=>{ progress.style.display='none'; bar.style.width='0%'; }, 1500);
 }
 
-function addImgUrl(){
-  const inp = document.getElementById('imgUrlInput');
-  const url = inp.value.trim();
-  if(!url){ toast('Paste link gambar dulu!'); return; }
-  const isVideo = url.match(/\.(mp4|mov|webm|avi)$/i);
-  S.mediaUrls.push({ url, type: isVideo ? 'video/mp4' : 'image/jpeg' });
-  addPrevUrl(url, isVideo, S.mediaUrls.length-1);
-  inp.value='';
-  document.getElementById('imgUrlPreview').style.display='none';
-  toast('Gambar ditambahkan!');
+async function uploadAsBase64(file){
+  return new Promise(resolve=>{
+    const reader = new FileReader();
+    reader.onload = e=>{
+      // Kompres dulu
+      const img = new Image();
+      img.onload = ()=>{
+        const canvas = document.createElement('canvas');
+        let w=img.width, h=img.height;
+        const max=800; if(w>max){h=h*(max/w);w=max;}
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        const url = canvas.toDataURL('image/jpeg',0.7);
+        S.mediaUrls.push({url, type:'image/jpeg'});
+        addPrevUrl(url, false, S.mediaUrls.length-1);
+        resolve();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 function addPrevUrl(url, isVideo, idx){
   const g = document.getElementById('prevGrid');
-  const d = document.createElement('div'); d.className='prev-item'; d.id='prev-'+idx;
+  const d = document.createElement('div'); d.className='prev-item';
   d.innerHTML = isVideo
     ? `<video src="${url}" muted></video>`
-    : `<img src="${url}" onerror="this.parentElement.style.opacity=0.4">`;
+    : `<img src="${url}" onerror="this.style.opacity=0.3">`;
   const rm = document.createElement('button'); rm.className='prev-rm'; rm.innerHTML='✕';
   rm.onclick=()=>{ S.mediaUrls.splice(idx,1); d.remove(); };
   d.appendChild(rm); g.appendChild(d);
@@ -1477,11 +1504,10 @@ async function submitPost(){
     });
 
     // Reset form
-    ['capInput','devInput','linkInput','tutorialInput','imgUrlInput','downloadInput'].forEach(id=>{
+    ['capInput','devInput','linkInput','tutorialInput','downloadInput'].forEach(id=>{
       const el=document.getElementById(id); if(el) el.value='';
     });
     document.getElementById('prevGrid').innerHTML='';
-    document.getElementById('imgUrlPreview').style.display='none';
     document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('sel'));
     S.mediaUrls=[]; S.cats=[];
     toast('Post berhasil!');
