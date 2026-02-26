@@ -175,7 +175,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 /* ─ SIDEBAR ─ */
 .sidebar{width:var(--sidebar);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:4px;transition:width .25s ease,opacity .25s ease;}
 .sidebar.collapsed{width:0;opacity:0;overflow:hidden;pointer-events:none;}
-.sidebar-show-btn{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:100;background:var(--surface);border:1px solid var(--border);border-left:none;border-radius:0 8px 8px 0;padding:10px 5px;cursor:pointer;display:none;color:var(--muted2);}
+.sidebar-show-btn{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:100;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:0 10px 10px 0;padding:12px 7px;cursor:pointer;display:none;color:#fff;box-shadow:3px 0 15px rgba(124,111,255,.4);}
 .sidebar.collapsed ~ * .sidebar-show-btn, body.sb-hidden .sidebar-show-btn{display:flex;}
 .nav-i{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:all .2s;position:relative;background:none;border:none;}
 .nav-i:hover{color:var(--text);background:var(--surface2);}
@@ -761,9 +761,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
         <div class="upload-wrap">
           <!-- MEDIA URL INPUT -->
           <div class="form-group">
-            <label class="form-label">Gambar / Video (via link)</label>
+            <label class="form-label">Thumbnail / Gambar Preview</label>
             <div style="display:flex;gap:8px;align-items:center">
-              <input class="form-input" id="imgUrlInput" placeholder="Paste link gambar atau video..." oninput="previewImgUrl(this.value)" style="flex:1">
+              <input class="form-input" id="imgUrlInput" placeholder="Link gambar thumbnail (imgbb, imgur...)" oninput="previewImgUrl(this.value)" style="flex:1">
               <button onclick="addImgUrl()" style="background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;padding:9px 14px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;font-weight:600">+ Tambah</button>
             </div>
             <div id="imgUrlPreview" style="margin-top:10px;display:none">
@@ -771,17 +771,23 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
               <video id="imgUrlPreviewVid" style="width:100%;max-height:200px;border-radius:10px;display:none" controls></video>
               <div style="font-size:11px;color:var(--accent3);margin-top:4px">Preview media</div>
             </div>
-            <div style="margin-top:8px;font-size:11px;color:var(--muted);line-height:1.6">
-              Cara dapat link gambar: upload ke <a href="https://imgbb.com" target="_blank" style="color:var(--accent)">imgbb.com</a> atau <a href="https://imgur.com" target="_blank" style="color:var(--accent)">imgur.com</a> lalu copy link langsung<br>
-              Cara dapat link video: upload ke <a href="https://streamable.com" target="_blank" style="color:var(--accent2)">streamable.com</a> atau <a href="https://www.youtube.com" target="_blank" style="color:var(--accent2)">YouTube</a> lalu copy link embed/direct
+            <div style="margin-top:6px;font-size:11px;color:var(--muted)">
+              Upload thumbnail ke <a href="https://imgbb.com" target="_blank" style="color:var(--accent)">imgbb.com</a> → Direct link
             </div>
           </div>
           <div class="prev-grid" id="prevGrid"></div>
 
+          <!-- DOWNLOAD LINK -->
+          <div class="form-group">
+            <label class="form-label">Link Download / File (opsional)</label>
+            <input class="form-input" id="downloadInput" placeholder="https://mediafire.com/... atau link file lainnya">
+            <div style="margin-top:6px;font-size:11px;color:var(--muted)">Link Mediafire, Google Drive, dll. Akan muncul sebagai tombol Download di post</div>
+          </div>
+
           <!-- TUTORIAL LINK -->
           <div class="form-group">
             <label class="form-label">Link Tutorial / Demo (opsional)</label>
-            <input class="form-input" id="tutorialInput" placeholder="https://youtube.com/... atau link tutorial">
+            <input class="form-input" id="tutorialInput" placeholder="https://youtube.com/...">
           </div>
           <div class="form-group"><label class="form-label">📝 Caption</label><textarea class="form-textarea" id="capInput" placeholder="Tulis caption..."></textarea></div>
           <div class="form-group"><label class="form-label">👤 Kreator / Developer</label><input class="form-input" id="devInput" placeholder="@nama_kamu"></div>
@@ -984,7 +990,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
               <a class="soc-item" href="https://discord.gg/servermu" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#5865f2,#7289da)">🎮</div><div class="soc-info"><div class="soc-name">Discord</div><div class="soc-handle">Server QStudio</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
             </div>
           </div>
-          <div class="set-about">QStudio v1.3<br><span>URL Media, Tutorial Link, Tombol Baru</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
+          <div class="set-about">QStudio v1.5<br><span>Download Link, Thumbnail Terpisah</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
         </div>
       </div>
     </div>
@@ -1004,7 +1010,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 <div class="cmt-sheet" id="cmtSheet">
   <div class="cmt-handle"></div>
   <div class="cmt-head">
-    <div class="cmt-title">💬 Komentar</div>
+    <div class="cmt-title">Komentar</div>
     <button class="cmt-close" onclick="closeComments()">✕</button>
   </div>
   <div class="cmt-list" id="cmtList"></div>
@@ -1019,9 +1025,16 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
   </div>
 </div>
 
+<!-- USER PROFILE MODAL -->
+<div class="cmt-overlay" id="uprofOverlay" onclick="closeUserProfile()"></div>
+<div class="cmt-sheet" id="uprofSheet" style="max-height:80vh">
+  <div class="cmt-handle"></div>
+  <div id="uprofContent" style="padding:20px;overflow-y:auto;max-height:70vh"></div>
+</div>
+
 <!-- VERSION BADGE -->
 <div class="version-badge">
-  <span class="vb-name">QStudio v1.3</span>
+  <span class="vb-name">QStudio v1.5</span>
   <span class="vb-by">By Ryo · Qyro</span>
 </div>
 
@@ -1303,10 +1316,14 @@ function renderFeed(){
   const uid = S.auth?.uid;
   fc.innerHTML=posts.map((p,i)=>{
     const avHTML=p.avUrl?`<img src="${p.avUrl}">`:(p.av||'?');
-    const media=(p.files||[]).map(f=>f.type&&f.type.startsWith('video')?`<video class="post-vid" src="${f.url}" controls></video>`:`<img class="post-img" src="${f.url}">`).join('');
+    const media=(p.files||[]).map(f=>f.type&&f.type.startsWith('video')
+      ?`<video class="post-vid" src="${f.url}" controls></video>`
+      :`<img class="post-img" src="${f.url}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy"><div style="display:none;align-items:center;justify-content:center;background:var(--surface2);border-radius:10px;padding:20px;gap:10px;flex-direction:column;color:var(--muted2);font-size:12px"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Gambar tidak bisa ditampilkan<a href="${f.url}" target="_blank" style="color:var(--accent);font-size:11px">Buka link</a></div>`
+    ).join('');
     const cats=(p.cats||[]).map(c=>`<span class="post-cat">${catE[c]||'✨'} ${c}</span>`).join('');
     const lnk=p.link?`<a class="post-link" href="${p.link}" target="_blank"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>${p.link}</span></a>`:'';
     const tut=p.tutorial?`<a class="post-link" href="${p.tutorial}" target="_blank" style="color:var(--accent2);border-color:rgba(255,107,138,.3)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><span>Tutorial / Demo</span></a>`:'';
+    const dl=p.download?`<a class="post-link" href="${p.download}" target="_blank" style="color:var(--accent3);border-color:rgba(61,255,160,.25);background:rgba(61,255,160,.07)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Download File</span></a>`:'';
     const dev=p.dev?`<div class="post-dev">by <b>${p.dev}</b></div>`:'';
     const liked=(p.likedBy||[]).includes(uid);
     const likesCount=(p.likedBy||[]).length;
@@ -1314,11 +1331,11 @@ function renderFeed(){
     return `<div class="post-card" style="animation-delay:${i*.05}s" onclick="openBS('${p.id}')">
       <div class="post-head" onclick="event.stopPropagation()">
         <div class="post-av" style="background:${p.avUrl?'none':p.bg||'var(--accent)'}">${avHTML}</div>
-        <div class="post-info"><div class="post-name">${p.name||'User'}${getBadge(p.uid)}</div><div class="post-cats">${cats}</div></div>
+        <div class="post-info"><div class="post-name" onclick="event.stopPropagation();viewUserProfile('${p.uid}','${(p.name||'User').replace(/'/g,'')}','${p.avUrl||''}')" style="cursor:pointer;text-decoration:underline dotted">${p.name||'User'}${getBadge(p.uid)}</div><div class="post-cats">${cats}</div></div>
         <div class="post-time">${p.timeStr||''}</div>
       </div>
       ${media?`<div>${media}</div>`:''}
-      <div class="post-body">${p.cap?`<div class="post-cap">${p.cap}</div>`:''}${lnk}${tut}${dev}</div>
+      <div class="post-body">${p.cap?`<div class="post-cap">${p.cap}</div>`:''}${dl}${tut}${lnk}${dev}</div>
       <div class="post-actions" onclick="event.stopPropagation()">
         <button class="act-btn ${liked?'liked':''}" onclick="toggleLike('${p.id}',this)">
           <svg width="13" height="13" fill="${liked?'currentColor':'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -1432,6 +1449,7 @@ async function submitPost(){
   const dev=document.getElementById('devInput').value.trim();
   const link=document.getElementById('linkInput').value.trim();
   const tutorial=document.getElementById('tutorialInput').value.trim();
+  const download=document.getElementById('downloadInput').value.trim();
   if(!cap && S.mediaUrls.length===0){ toast('Isi caption atau tambah gambar dulu!'); return; }
 
   const btn=document.querySelector('.submit-btn');
@@ -1443,22 +1461,23 @@ async function submitPost(){
     const initials=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
     const now = new Date();
 
+    const isOwnerUser = isOwner(S.auth.uid);
     await db.collection('posts').add({
       uid: S.auth.uid,
       name, av: initials,
       bg: 'linear-gradient(135deg,#7c6fff,#ff6b8a)',
       avUrl: prof.avUrl||'',
-      cap, dev, link, tutorial,
+      cap, dev, link, tutorial, download,
       cats: [...S.cats],
       files: [...S.mediaUrls],
       timeStr: now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),
-      likedBy: [],
+      likedBy: isOwnerUser ? [S.auth.uid] : [],
       commentsCount: 0,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
     // Reset form
-    ['capInput','devInput','linkInput','tutorialInput','imgUrlInput'].forEach(id=>{
+    ['capInput','devInput','linkInput','tutorialInput','imgUrlInput','downloadInput'].forEach(id=>{
       const el=document.getElementById(id); if(el) el.value='';
     });
     document.getElementById('prevGrid').innerHTML='';
@@ -1667,6 +1686,7 @@ function renderProfile(){
     ta.textContent=init[0]||'Q';
   }
   renderPostsWrap();
+  updateFollowerCount();
 }
 
 function renderPostsWrap(){
@@ -1784,8 +1804,104 @@ async function deletePost(id){
   } catch(e){ toast('Gagal hapus: '+e.message); }
 }
 
+/* ══ USER PROFILE MODAL + FOLLOW ══ */
+async function viewUserProfile(uid, name, avUrl){
+  if(uid === S.auth?.uid){ goPage('profile','forward'); return; }
+  const overlay = document.getElementById('uprofOverlay');
+  const sheet = document.getElementById('uprofSheet');
+  const content = document.getElementById('uprofContent');
+  content.innerHTML = `<div style="text-align:center;color:var(--muted2);padding:20px">Memuat...</div>`;
+  overlay.classList.add('open'); sheet.classList.add('open');
+
+  try {
+    // Load user data
+    const userDoc = await db.collection('users').doc(uid).get();
+    const userData = userDoc.exists ? userDoc.data() : {first:name, last:'', bio:'', user:''};
+    const fullName = [userData.first,userData.last].filter(Boolean).join(' ')||name;
+
+    // Load user posts
+    const postsSnap = await db.collection('posts').where('uid','==',uid).orderBy('createdAt','desc').limit(9).get();
+    const userPosts = postsSnap.docs.map(d=>({id:d.id,...d.data()}));
+
+    // Check follow status
+    const myUid = S.auth?.uid;
+    const followDoc = myUid ? await db.collection('follows').doc(`${myUid}_${uid}`).get() : null;
+    const isFollowing = followDoc?.exists || false;
+
+    // Get follower count
+    const followersSnap = await db.collection('follows').where('targetUid','==',uid).get();
+    const followerCount = followersSnap.size;
+
+    const init = fullName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
+    const avHTML = avUrl ? `<img src="${avUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : init;
+    const badge = getBadge(uid);
+
+    content.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding-bottom:16px">
+        <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;overflow:hidden">${avHTML}</div>
+        <div style="text-align:center">
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800">${fullName}${badge}</div>
+          ${userData.user?`<div style="color:var(--muted2);font-size:12px">@${userData.user}</div>`:''}
+          ${userData.bio?`<div style="color:var(--muted2);font-size:12px;margin-top:4px">${userData.bio}</div>`:''}
+        </div>
+        <div style="display:flex;gap:24px;text-align:center">
+          <div><div style="font-weight:700;font-size:16px">${userPosts.length}</div><div style="font-size:11px;color:var(--muted2)">Post</div></div>
+          <div><div style="font-weight:700;font-size:16px" id="uprofFollowers">${followerCount}</div><div style="font-size:11px;color:var(--muted2)">Follower</div></div>
+        </div>
+        ${myUid && myUid!==uid ? `<button id="uprofFollowBtn" onclick="toggleFollow('${uid}','${fullName}')" style="background:${isFollowing?'var(--surface2)':'linear-gradient(135deg,var(--accent),var(--accent2))'};border:${isFollowing?'1px solid var(--border)':'none'};border-radius:10px;color:${isFollowing?'var(--muted2)':'#fff'};padding:9px 28px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer">${isFollowing?'Mengikuti':'Ikuti'}</button>` : ''}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:8px">
+        ${userPosts.flatMap(p=>(p.files||[]).slice(0,1)).slice(0,9).map(f=>
+          `<div style="aspect-ratio:1;background:var(--surface2);border-radius:6px;overflow:hidden">
+            <img src="${f.url}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">
+          </div>`
+        ).join('')}
+        ${userPosts.length===0?`<div style="grid-column:1/-1;text-align:center;color:var(--muted2);padding:20px;font-size:12px">Belum ada post</div>`:''}
+      </div>`;
+  } catch(e){
+    content.innerHTML = `<div style="text-align:center;color:var(--muted2)">Gagal memuat profil</div>`;
+  }
+}
+
+function closeUserProfile(){
+  document.getElementById('uprofOverlay').classList.remove('open');
+  document.getElementById('uprofSheet').classList.remove('open');
+}
+
+async function toggleFollow(targetUid, targetName){
+  const myUid = S.auth?.uid; if(!myUid) return;
+  const followId = `${myUid}_${targetUid}`;
+  const ref = db.collection('follows').doc(followId);
+  const btn = document.getElementById('uprofFollowBtn');
+  const counterEl = document.getElementById('uprofFollowers');
+  const doc = await ref.get();
+  if(doc.exists){
+    await ref.delete();
+    if(btn){ btn.textContent='Ikuti'; btn.style.background='linear-gradient(135deg,var(--accent),var(--accent2))'; btn.style.color='#fff'; btn.style.border='none'; }
+    if(counterEl) counterEl.textContent = Math.max(0, parseInt(counterEl.textContent)-1);
+    toast('Berhenti mengikuti '+targetName);
+  } else {
+    await ref.set({ followerUid:myUid, targetUid, targetName, followedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    if(btn){ btn.textContent='Mengikuti'; btn.style.background='var(--surface2)'; btn.style.color='var(--muted2)'; btn.style.border='1px solid var(--border)'; }
+    if(counterEl) counterEl.textContent = parseInt(counterEl.textContent)+1;
+    toast('Mengikuti '+targetName+'!');
+  }
+}
+
+// Update renderProfile to show follower count
+async function updateFollowerCount(){
+  if(!S.auth) return;
+  try {
+    const followersSnap = await db.collection('follows').where('targetUid','==',S.auth.uid).get();
+    const followingSnap = await db.collection('follows').where('followerUid','==',S.auth.uid).get();
+    const fEl = document.getElementById('statFollowers');
+    const fgEl = document.getElementById('statFollowing');
+    if(fEl) fEl.textContent = followersSnap.size;
+    if(fgEl) fgEl.textContent = followingSnap.size;
+  } catch(e){}
+}
+
 function scrollToTop(){
-  const scroll = document.getElementById('homeScroll');
   if(scroll) scroll.scrollTo({top:0, behavior:'smooth'});
   else window.scrollTo({top:0, behavior:'smooth'});
 }
