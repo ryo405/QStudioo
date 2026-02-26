@@ -38,29 +38,6 @@ html,body{height:100%;overflow:hidden;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;}
 
 /* ══════════════════════════════════════
-   SPLASH SCREEN
-══════════════════════════════════════ */
-#splashScreen{
-  position:fixed;inset:0;z-index:999;
-  background:#09090f;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
-  transition:opacity .5s ease, transform .5s ease;
-}
-#splashScreen.hide{opacity:0;transform:scale(1.06);pointer-events:none;}
-.splash-logo{
-  width:80px;height:80px;border-radius:24px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  display:flex;align-items:center;justify-content:center;font-size:36px;
-  box-shadow:0 0 60px rgba(124,111,255,.5);
-  animation:splashPulse 2s ease infinite;
-}
-@keyframes splashPulse{0%,100%{box-shadow:0 0 40px rgba(124,111,255,.4)}50%{box-shadow:0 0 80px rgba(124,111,255,.7),0 0 120px rgba(255,107,138,.3)}}
-.splash-name{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;background:linear-gradient(90deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.splash-tag{font-size:12px;color:var(--muted2);letter-spacing:2px;text-transform:uppercase;}
-.splash-bar{width:120px;height:2px;background:var(--surface3);border-radius:99px;margin-top:24px;overflow:hidden;}
-.splash-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .05s linear;}
-
-/* ══════════════════════════════════════
    ONBOARDING
 ══════════════════════════════════════ */
 #onboarding{
@@ -550,14 +527,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 </head>
 <body>
 
-<!-- ══════════════ SPLASH ══════════════ -->
-<div id="splashScreen">
-  <div class="splash-logo">🎬</div>
-  <div class="splash-name">QStudio</div>
-  <div class="splash-tag">By Ryo · Qyro</div>
-  <div class="splash-bar"><div class="splash-bar-fill" id="splashBar"></div></div>
-</div>
-
 <!-- ══════════════ ONBOARDING ══════════════ -->
 <div id="onboarding">
   <div class="ob-slides">
@@ -1024,37 +993,24 @@ const S = {
 const catE = {youtube:'▶',roblox:'🎮',prisma3d:'💎',design:'🎨',code:'💻',music:'🎵',film:'🎬',art:'🖼️',other:'✨'};
 
 /* ══════════════════════════════════════
-   SPLASH
+/* ══════════════════════════════════════
+   INIT — langsung cek auth tanpa splash
 ══════════════════════════════════════ */
-let splashProgress = 0;
-const splashInterval = setInterval(()=>{
-  splashProgress += 2;
-  document.getElementById('splashBar').style.width = splashProgress + '%';
-  if(splashProgress >= 100){
-    clearInterval(splashInterval);
-    setTimeout(()=>{
-      document.getElementById('splashScreen').classList.add('hide');
-      setTimeout(()=>{
-        document.getElementById('splashScreen').style.display='none';
-        // Cek auth state SETELAH splash selesai
-        auth.onAuthStateChanged(user => {
-          if(user){
-            S.auth = user;
-            loadUserProfile(user.uid).then(()=>{
-              document.getElementById('onboarding').classList.remove('show');
-              document.getElementById('authScreen').classList.remove('show');
-              showApp();
-            });
-          } else {
-            const seenOb = localStorage.getItem('qs_ob');
-            if(seenOb){ showAuth(); }
-            else { document.getElementById('onboarding').classList.add('show'); }
-          }
-        });
-      }, 500);
-    }, 200);
+auth.onAuthStateChanged(user => {
+  if(user){
+    S.auth = user;
+    loadUserProfile(user.uid).then(()=>{
+      document.getElementById('onboarding').classList.remove('show');
+      document.getElementById('authScreen').classList.remove('show');
+      showApp();
+    });
+  } else {
+    const seenOb = localStorage.getItem('qs_ob');
+    if(seenOb){ showAuth(); }
+    else { document.getElementById('onboarding').classList.add('show'); }
   }
-}, 30);
+});
+async function loadUserProfile(uid){
   try {
     const doc = await db.collection('users').doc(uid).get();
     if(doc.exists){
