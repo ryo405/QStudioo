@@ -1028,12 +1028,55 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
               <a class="soc-item" href="https://github.com/ryo405" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#24292e,#444)">🐙</div><div class="soc-info"><div class="soc-name">GitHub</div><div class="soc-handle">ryo405</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
             </div>
           </div>
-          <div class="set-about">MWH v2.2<br><span>Global Chat, Favorit, Notif, Rename</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
+          <div class="set-about">MWH v2.3<br><span>Global Chat, Favorit, Notif, Rename</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
         </div>
       </div>
     </div>
   </div>
 </div>
+    <!-- ADMIN PANEL -->
+    <div class="page" id="page-admin">
+      <div class="ph">
+        <button class="back-btn" onclick="goBack()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
+        <div class="ph-info"><div class="ph-title">⚡ Admin Panel</div><div class="ph-sub" id="adminSubTxt">Owner only</div></div>
+      </div>
+      <div class="scroll-content" style="padding:14px;display:flex;flex-direction:column;gap:12px">
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px" id="adminStats"></div>
+        <!-- Actions -->
+        <div class="set-section">
+          <div class="set-sec-label">Moderasi</div>
+          <div class="set-group">
+            <div class="set-item" onclick="adminLoadUsers()">
+              <div class="set-icon" style="background:rgba(124,111,255,.15)">👥</div>
+              <div class="set-label"><div class="set-name">Kelola User</div><div class="set-desc">Lihat & ban user</div></div>
+              <div class="set-right"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div>
+            </div>
+            <div class="set-item" onclick="adminLoadPosts()">
+              <div class="set-icon" style="background:rgba(255,179,71,.15)">📝</div>
+              <div class="set-label"><div class="set-name">Kelola Post</div><div class="set-desc">Hapus post apapun</div></div>
+              <div class="set-right"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div>
+            </div>
+            <div class="set-item" onclick="adminClearGlobalChat()">
+              <div class="set-icon" style="background:rgba(255,107,138,.15)">🗑️</div>
+              <div class="set-label"><div class="set-name">Hapus Global Chat</div><div class="set-desc">Bersihkan semua pesan</div></div>
+              <div class="set-right"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div>
+            </div>
+          </div>
+        </div>
+        <!-- Announcement -->
+        <div class="set-section">
+          <div class="set-sec-label">Pengumuman Global</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <textarea id="announceTxt" class="form-input" rows="3" placeholder="Ketik pengumuman untuk semua user..." style="resize:none"></textarea>
+            <button onclick="sendAnnouncement()" style="background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;padding:11px;font-weight:700;font-size:13px;font-family:'Space Grotesk',sans-serif;cursor:pointer">📢 Kirim Pengumuman</button>
+          </div>
+        </div>
+        <!-- List output -->
+        <div id="adminList"></div>
+      </div>
+    </div>
+
 </div><!-- /mainApp -->
 
 <!-- BOTTOM SHEET -->
@@ -1052,6 +1095,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
     <button class="cmt-close" onclick="closeComments()">✕</button>
   </div>
   <div class="cmt-list" id="cmtList"></div>
+  <!-- Reply preview bar -->
+  <div id="replyBar" style="display:none;padding:6px 12px;background:var(--surface2);border-top:1px solid var(--border);font-size:11px;color:var(--muted2);display:none;align-items:center;gap:8px">
+    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
+    <span id="replyBarTxt">Membalas...</span>
+    <button onclick="clearReply()" style="margin-left:auto;background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px;line-height:1">✕</button>
+  </div>
   <div class="cmt-input-area">
     <div class="cmt-input-row">
       <div class="cmt-av-small" id="cmtMyAv">Q</div>
@@ -1072,7 +1121,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 
 <!-- VERSION BADGE -->
 <div class="version-badge">
-  <span class="vb-name">MWH v2.2</span>
+  <span class="vb-name">MWH v2.3</span>
   <span class="vb-by">By Ryo · Qyro</span>
 </div>
 
@@ -1269,25 +1318,44 @@ function showApp(){
   app.style.display='flex';
   setTimeout(()=>app.classList.add('show'),10);
   loadPosts();
-  renderNotifs();
   renderProfile();
   const hour=new Date().getHours();
   const greet=hour<11?'🌅 Selamat Pagi':hour<15?'☀️ Selamat Siang':hour<18?'🌤️ Selamat Sore':'🌙 Selamat Malam';
   const name=S.profile.first||'Sobat';
   document.getElementById('homeGreet').textContent=greet+', '+name+'!';
-  // Listen online users - auto refresh chat
+
+  // Inject admin button jika owner
+  if(isOwner(S.auth?.uid)){
+    const sidebar = document.getElementById('sidebar');
+    if(sidebar && !document.getElementById('nav-admin')){
+      const adminBtn = document.createElement('button');
+      adminBtn.className='nav-i'; adminBtn.id='nav-admin';
+      adminBtn.onclick=()=>{ if(!isOwner(S.auth?.uid)){toast('Akses ditolak');return;} goPage('admin','forward'); adminLoadStats(); };
+      adminBtn.innerHTML=`<svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-tip">Admin</span>`;
+      const settingsBtn = document.getElementById('nav-settings');
+      sidebar.insertBefore(adminBtn, settingsBtn);
+    }
+  }
+
+  // Listen online users
   rtdb.ref('online').on('value', snap=>{
     S.onlineUsers = snap.val()||{};
-    // refresh chat list kalau lagi di halaman chat
-    const chatPage = document.getElementById('pgChat');
-    if(chatPage && chatPage.classList.contains('active')){
-      renderChatList();
+  });
+
+  // Listen pengumuman dari admin
+  rtdb.ref('announcement').on('value', snap=>{
+    if(!snap.exists()) return;
+    const ann = snap.val();
+    if(ann && ann.text && ann.ts > (S.lastAnnTs||0)){
+      S.lastAnnTs = ann.ts;
+      // Tampilkan sebagai banner
+      showAnnouncement(ann.text);
     }
   });
 }
 
 /* ══ NAV ══ */
-const navMap={home:'nav-home',upload:'nav-upload',chat:'nav-chat',chatroom:'nav-chat',globalchat:'nav-chat',notif:'nav-notif',profile:'nav-profile',editprofile:'nav-profile',settings:'nav-settings',favorit:'nav-home'};
+const navMap={home:'nav-home',upload:'nav-upload',chat:'nav-chat',chatroom:'nav-chat',globalchat:'nav-chat',notif:'nav-notif',profile:'nav-profile',editprofile:'nav-profile',settings:'nav-settings',favorit:'nav-home',admin:'nav-admin'};
 
 function goPage(page,dir='forward'){
   const cur=document.querySelector('.page.active'), nxt=document.getElementById('page-'+page);
@@ -1694,8 +1762,28 @@ async function sendMsg(){
 let cmtPostId = null;
 let cmtListener = null;
 
+let cmtReplyTo = null;
+
+function setReply(cmtId, name, text){
+  cmtReplyTo = { cmtId, name, text };
+  const bar = document.getElementById('replyBar');
+  bar.style.display='flex';
+  document.getElementById('replyBarTxt').textContent=`Membalas ${name}: "${text.slice(0,30)}..."`;
+  document.getElementById('cmtInput').focus();
+  document.getElementById('cmtInput').placeholder=`Balas ${name}...`;
+}
+
+function clearReply(){
+  cmtReplyTo = null;
+  const bar = document.getElementById('replyBar');
+  bar.style.display='none';
+  document.getElementById('cmtInput').placeholder='Tulis komentar...';
+}
+
 function openComments(id){
   cmtPostId = id;
+  cmtReplyTo = null;
+  clearReply();
   if(cmtListener) cmtListener();
   const myAv = document.getElementById('cmtMyAv');
   if(S.profile.avUrl) myAv.innerHTML=`<img src="${S.profile.avUrl}">`;
@@ -1708,15 +1796,23 @@ function openComments(id){
         list.innerHTML=`<div class="cmt-empty"><div class="cmt-empty-ico">💬</div><div class="cmt-empty-t">Belum ada komentar. Jadilah yang pertama!</div></div>`;
         return;
       }
+      const uid=S.auth?.uid;
       list.innerHTML = snap.docs.map(d=>{
-        const c=d.data();
+        const c=d.data(); const cid=d.id;
         const avHTML=c.avUrl?`<img src="${c.avUrl}">`:(c.av||'?');
-        return `<div class="cmt-item">
+        const canDel=uid===c.uid||isOwner(uid);
+        const replyQuote=c.replyTo?`<div style="background:var(--surface3);border-left:3px solid var(--accent);border-radius:4px;padding:4px 8px;margin-bottom:4px;font-size:11px;color:var(--muted2)"><b>${c.replyTo.name}</b>: ${c.replyTo.text.slice(0,40)}</div>`:'';
+        return `<div class="cmt-item" id="cmt-${cid}">
           <div class="cmt-av">${avHTML}</div>
           <div class="cmt-body">
             <div class="cmt-name">${c.name||'User'}</div>
+            ${replyQuote}
             <div class="cmt-text">${c.text}</div>
-            <div class="cmt-time">${c.timeStr||''}</div>
+            <div style="display:flex;gap:10px;align-items:center;margin-top:3px">
+              <div class="cmt-time">${c.timeStr||''}</div>
+              <button onclick="setReply('${cid}','${(c.name||'User').replace(/'/g,'')}','${(c.text||'').replace(/'/g,'').slice(0,40)}')" style="background:none;border:none;color:var(--muted2);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0">↩ Balas</button>
+              ${canDel?`<button onclick="deleteCmt('${cid}')" style="background:none;border:none;color:#ff4d4d;font-size:11px;cursor:pointer;padding:0">Hapus</button>`:''}
+            </div>
           </div>
         </div>`;
       }).join('');
@@ -1741,32 +1837,77 @@ async function sendComment(){
   const name=[prof.first,prof.last].filter(Boolean).join(' ')||'User';
   const av=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'Q';
   inp.value='';
+  const replyData = cmtReplyTo ? {...cmtReplyTo} : null;
+  clearReply();
   const batch=db.batch();
   const cmtRef=db.collection('posts').doc(cmtPostId).collection('comments').doc();
-  batch.set(cmtRef,{
+  const cmtData={
     uid:S.auth.uid, name, av, avUrl:prof.avUrl||'', text:txt,
     timeStr:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),
     createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  });
+  };
+  if(replyData) cmtData.replyTo={name:replyData.name, text:replyData.text};
+  batch.set(cmtRef, cmtData);
   batch.update(db.collection('posts').doc(cmtPostId),{
     commentsCount:firebase.firestore.FieldValue.increment(1)
   });
   await batch.commit();
-  // Kirim notif ke pemilik post
-  const post = S.posts.find(p=>p.id===cmtPostId);
-  if(post) sendNotif(post.uid, 'comment', txt);
+  const post=S.posts.find(p=>p.id===cmtPostId);
+  if(post) sendNotif(post.uid,'comment',txt);
 }
 
-document.getElementById('cmtInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendComment();});
+async function deleteCmt(cmtId){
+  if(!cmtPostId||!S.auth) return;
+  if(!confirm('Hapus komentar ini?')) return;
+  await db.collection('posts').doc(cmtPostId).collection('comments').doc(cmtId).delete();
+  await db.collection('posts').doc(cmtPostId).update({commentsCount:firebase.firestore.FieldValue.increment(-1)});
+}
+
+document.getElementById('cmtInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendComment();}});
 
 /* ══ NOTIF ══ */
-function renderNotifs(){
+async function renderNotifs(){
   const sub=document.getElementById('notifSubTxt');
-  if(sub) sub.textContent='Semua sudah dibaca';
   const list=document.getElementById('notifList');
-  if(list) list.innerHTML=`<div class="empty"><div class="empty-ico">🔔</div><div class="empty-t">Belum ada notifikasi</div><div class="empty-s">Saat ada yang like atau komentar, notif akan muncul di sini.</div></div>`;
+  if(!S.auth){ if(list) list.innerHTML=''; return; }
+  if(list) list.innerHTML=`<div style="text-align:center;padding:30px;color:var(--muted2);font-size:12px">Memuat...</div>`;
+  try {
+    const snap = await db.collection('notifs')
+      .where('targetUid','==',S.auth.uid)
+      .orderBy('createdAt','desc').limit(30).get();
+    const notifs = snap.docs.map(d=>({id:d.id,...d.data()}));
+    const unread = notifs.filter(n=>!n.seen).length;
+    if(sub) sub.textContent = unread>0 ? `${unread} belum dibaca` : 'Semua sudah dibaca';
+    if(notifs.length===0){
+      list.innerHTML=`<div class="empty"><div class="empty-ico">🔔</div><div class="empty-t">Belum ada notifikasi</div><div class="empty-s">Saat ada yang like atau komentar, notif akan muncul di sini.</div></div>`;
+      return;
+    }
+    list.innerHTML = notifs.map(n=>{
+      const ico = n.type==='like'?'❤️':n.type==='comment'?'💬':n.type==='follow'?'👤':'🔔';
+      const msg = n.type==='like'?`<b>${n.fromName}</b> menyukai postmu`
+        :n.type==='comment'?`<b>${n.fromName}</b> mengomentari: "${(n.text||'').slice(0,40)}"`
+        :n.type==='follow'?`<b>${n.fromName}</b> mulai mengikutimu`
+        :`<b>${n.fromName}</b> ${n.text||''}`;
+      const avHTML = n.fromAvUrl?`<img src="${n.fromAvUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(n.fromName||'?')[0];
+      return `<div class="set-item" style="${n.seen?'':'background:rgba(124,111,255,.06);'}">
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;overflow:hidden;flex-shrink:0">${avHTML}</div>
+        <div style="flex:1;font-size:13px;color:var(--text);line-height:1.5">${msg}</div>
+        <div style="font-size:10px;color:var(--muted);white-space:nowrap">${ico}</div>
+      </div>`;
+    }).join('');
+  } catch(e){
+    if(list) list.innerHTML=`<div class="empty"><div class="empty-ico">🔔</div><div class="empty-t">Gagal memuat notif</div></div>`;
+  }
 }
-function markAllRead(){ toast('✅ Semua sudah dibaca'); }
+async function markAllRead(){
+  if(!S.auth) return;
+  const snap = await db.collection('notifs').where('targetUid','==',S.auth.uid).where('seen','==',false).get();
+  const batch = db.batch();
+  snap.docs.forEach(d=>batch.update(d.ref,{seen:true}));
+  await batch.commit();
+  renderNotifs();
+  toast('Semua sudah dibaca');
+}
 
 /* ══ PROFILE ══ */
 function renderProfile(){
@@ -2005,6 +2146,7 @@ async function toggleFollow(targetUid, targetName){
     if(btn){ btn.textContent='Mengikuti'; btn.style.background='var(--surface2)'; btn.style.color='var(--muted2)'; btn.style.border='1px solid var(--border)'; }
     if(counterEl) counterEl.textContent = parseInt(counterEl.textContent)+1;
     toast('Mengikuti '+targetName+'!');
+    sendNotif(targetUid, 'follow');
   }
 }
 
@@ -2097,18 +2239,23 @@ function openGlobalChat(){
       const avHTML = m.avUrl
         ? `<img src="${m.avUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
         : (m.av||'?');
+      const replyQ=m.replyTo?`<div style="background:rgba(255,255,255,.1);border-left:3px solid rgba(255,255,255,.5);border-radius:4px;padding:3px 7px;margin-bottom:4px;font-size:10px;opacity:.8"><b>${m.replyTo.name}</b>: ${m.replyTo.text.slice(0,35)}</div>`:'';
       if(isMe){
         return `${dateSep}<div class="msg-row out">
-          <div class="msg-bub">${m.text}</div>
+          ${replyQ?`<div class="msg-bub">${replyQ}${m.text}</div>`:`<div class="msg-bub">${m.text}</div>`}
           <div class="msg-time">${timeStr}</div>
         </div>`;
       } else {
+        const inReplyQ=m.replyTo?`<div style="background:var(--surface3);border-left:3px solid var(--accent);border-radius:4px;padding:3px 7px;margin-bottom:4px;font-size:10px;color:var(--muted2)"><b>${m.replyTo.name}</b>: ${m.replyTo.text.slice(0,35)}</div>`:'';
         return `${dateSep}<div style="display:flex;gap:7px;align-items:flex-end">
           <div style="width:28px;height:28px;border-radius:50%;background:var(--surface3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;overflow:hidden">${avHTML}</div>
-          <div class="msg-row in" style="flex:1">
+          <div class="msg-row in" style="flex:1;max-width:calc(100% - 40px)">
             <div class="msg-sender">${m.name||'User'}${getBadge(m.uid)}</div>
-            <div class="msg-bub">${m.text}</div>
-            <div class="msg-time">${timeStr}</div>
+            ${inReplyQ?`<div class="msg-bub">${inReplyQ}${m.text}</div>`:`<div class="msg-bub">${m.text}</div>`}
+            <div style="display:flex;gap:8px;align-items:center">
+              <div class="msg-time">${timeStr}</div>
+              <button onclick="setGlobalReply('${(m.name||'User').replace(/'/g,'')}','${m.text.replace(/'/g,'').slice(0,30)}')" style="background:none;border:none;color:var(--muted2);font-size:10px;cursor:pointer;padding:0">↩ Balas</button>
+            </div>
           </div>
         </div>`;
       }
@@ -2120,18 +2267,36 @@ function openGlobalChat(){
   });
 }
 
+function clearNotifDot(){
+  const dot=document.getElementById('notifDot');
+  if(dot) dot.style.display='none';
+  if(S.auth){
+    db.collection('notifs').where('targetUid','==',S.auth.uid).where('seen','==',false).get()
+      .then(snap=>{ const b=db.batch(); snap.docs.forEach(d=>b.update(d.ref,{seen:true})); b.commit(); })
+      .catch(()=>{});
+  }
+  renderNotifs();
+}
+
+/* ══ GLOBAL CHAT REPLY ══ */
+let globalReplyTo = null;
+function setGlobalReply(name, text){
+  globalReplyTo={name,text};
+  document.getElementById('globalInput').placeholder=`Balas ${name}...`;
+  document.getElementById('globalInput').focus();
+}
+
 async function sendGlobalMsg(){
-  const inp = document.getElementById('globalInput');
-  const text = inp.value.trim();
-  if(!text || !S.auth) return;
-  inp.value = '';
-  const prof = S.profile;
-  const name = [prof.first,prof.last].filter(Boolean).join(' ')||'Anon';
-  const init = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
-  await rtdb.ref('globalChat').push({
-    uid: S.auth.uid, name, av: init, avUrl: prof.avUrl||'',
-    text, ts: Date.now()
-  });
+  const inp=document.getElementById('globalInput');
+  const text=inp.value.trim();
+  if(!text||!S.auth) return;
+  inp.value='';
+  const prof=S.profile;
+  const name=[prof.first,prof.last].filter(Boolean).join(' ')||'Anon';
+  const init=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
+  const msg={ uid:S.auth.uid, name, av:init, avUrl:prof.avUrl||'', text, ts:Date.now() };
+  if(globalReplyTo){ msg.replyTo=globalReplyTo; globalReplyTo=null; inp.placeholder='Kirim ke semua...'; }
+  await rtdb.ref('globalChat').push(msg);
 }
 document.addEventListener('keydown', e=>{
   if(e.key==='Enter' && !e.shiftKey && document.getElementById('globalInput')===document.activeElement){
@@ -2200,42 +2365,136 @@ setTimeout(requestNotifPermission, 3000);
 // Listen notifikasi like/komen ke user ini
 function listenMyNotifs(){
   if(!S.auth) return;
+  // Simple query tanpa compound filter - hindari kebutuhan index Firestore
   db.collection('notifs').where('targetUid','==',S.auth.uid)
-    .where('seen','==',false)
+    .orderBy('createdAt','desc').limit(20)
     .onSnapshot(snap=>{
+      let unread=0;
       snap.docChanges().forEach(change=>{
         if(change.type==='added'){
-          const n = change.doc.data();
-          const dot = document.getElementById('notifDot');
-          if(dot) dot.style.display='block';
-          if(n.type==='like') sendBrowserNotif('❤️ Like baru!', `${n.fromName} menyukai postmu`, n.fromAvUrl||'');
-          if(n.type==='comment') sendBrowserNotif('💬 Komentar baru!', `${n.fromName}: ${n.text}`, n.fromAvUrl||'');
+          const n=change.doc.data();
+          if(!n.seen) unread++;
+          // Hanya notif baru (dalam 30 detik terakhir)
+          const ts=n.createdAt?.toMillis?.()||0;
+          if(Date.now()-ts < 30000 && n.fromUid!==S.auth.uid){
+            if(n.type==='like') sendBrowserNotif('❤️ Like baru!',`${n.fromName} menyukai postmu`);
+            if(n.type==='comment') sendBrowserNotif('💬 Komentar baru!',`${n.fromName}: ${(n.text||'').slice(0,50)}`);
+            if(n.type==='follow') sendBrowserNotif('👤 Follower baru!',`${n.fromName} mulai mengikutimu`);
+          }
         }
       });
-    });
+      const dot=document.getElementById('notifDot');
+      const unreadTotal=snap.docs.filter(d=>!d.data().seen).length;
+      if(dot) dot.style.display=unreadTotal>0?'block':'none';
+    }, err=>console.warn('notif listener:',err.code));
 }
 
-function clearNotifDot(){
-  const dot = document.getElementById('notifDot');
-  if(dot) dot.style.display='none';
-  // Mark all as seen
-  if(S.auth){
-    db.collection('notifs').where('targetUid','==',S.auth.uid).where('seen','==',false).get()
-      .then(snap=>{ snap.docs.forEach(d=>d.ref.update({seen:true})); }).catch(()=>{});
-  }
-}
-
+// Fix: sendNotif juga dipanggil di toggleFollow
 async function sendNotif(targetUid, type, text=''){
-  if(!S.auth || targetUid===S.auth.uid) return;
-  const prof = S.profile;
-  const fromName = [prof.first,prof.last].filter(Boolean).join(' ')||'Seseorang';
+  if(!S.auth||targetUid===S.auth.uid) return;
+  const prof=S.profile;
+  const fromName=[prof.first,prof.last].filter(Boolean).join(' ')||'Seseorang';
   try {
     await db.collection('notifs').add({
       targetUid, type, text, fromName,
-      fromUid: S.auth.uid, fromAvUrl: prof.avUrl||'',
-      seen: false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      fromUid:S.auth.uid, fromAvUrl:prof.avUrl||'',
+      seen:false, createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-  } catch(e){}
+  } catch(e){ console.warn('sendNotif:',e.message); }
+}
+
+/* ══ ANNOUNCEMENT ══ */
+function showAnnouncement(text){
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;max-width:320px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.3);animation:fadeUp .3s ease';
+  el.innerHTML=`📢 ${text}<br><button onclick="this.parentElement.remove()" style="margin-top:8px;background:rgba(255,255,255,.2);border:none;color:#fff;padding:4px 14px;border-radius:6px;font-size:11px;cursor:pointer">Tutup</button>`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 10000);
+}
+
+/* ══ ADMIN PANEL ══ */
+async function adminLoadStats(){
+  try {
+    const [postsSnap, usersSnap] = await Promise.all([
+      db.collection('posts').get(),
+      db.collection('users').get()
+    ]);
+    const onlineCount = Object.keys(S.onlineUsers||{}).length;
+    document.getElementById('adminStats').innerHTML=[
+      {ico:'📝',label:'Total Post',val:postsSnap.size},
+      {ico:'👥',label:'Total User',val:usersSnap.size},
+      {ico:'🟢',label:'Online',val:onlineCount}
+    ].map(s=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center">
+      <div style="font-size:22px">${s.ico}</div>
+      <div style="font-size:20px;font-weight:800;margin:4px 0">${s.val}</div>
+      <div style="font-size:11px;color:var(--muted2)">${s.label}</div>
+    </div>`).join('');
+    document.getElementById('adminSubTxt').textContent=`${postsSnap.size} post · ${usersSnap.size} user`;
+  } catch(e){ toast('Gagal load stats'); }
+}
+
+async function adminLoadUsers(){
+  const list=document.getElementById('adminList');
+  list.innerHTML=`<div style="text-align:center;padding:20px;color:var(--muted2)">Memuat...</div>`;
+  try {
+    const snap=await db.collection('users').limit(50).get();
+    list.innerHTML=`<div class="set-section"><div class="set-sec-label">Semua User (${snap.size})</div><div class="set-group">`+
+      snap.docs.map(d=>{
+        const u=d.data(); const uid=d.id;
+        const name=[u.first,u.last].filter(Boolean).join(' ')||'Tanpa Nama';
+        const isBanned=u.banned||false;
+        return `<div class="set-item">
+          <div class="set-icon" style="background:var(--surface3);font-size:13px;font-weight:700">${name[0]||'?'}</div>
+          <div class="set-label"><div class="set-name">${name}${isOwner(uid)?'⚡':''}</div><div class="set-desc">${u.user?'@'+u.user:u.email||uid.slice(0,8)}</div></div>
+          <button onclick="adminBanUser('${uid}','${name.replace(/'/g,'')}',${isBanned})" style="background:${isBanned?'rgba(61,255,160,.1)':'rgba(255,77,77,.1)'};border:1px solid ${isBanned?'rgba(61,255,160,.3)':'rgba(255,77,77,.3)'};color:${isBanned?'var(--accent3)':'#ff4d4d'};border-radius:8px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">${isBanned?'Unban':'Ban'}</button>
+        </div>`;
+      }).join('')+`</div></div>`;
+  } catch(e){ list.innerHTML=`<div style="color:#ff4d4d;text-align:center;padding:20px">Gagal: ${e.message}</div>`; }
+}
+
+async function adminBanUser(uid, name, isBanned){
+  if(isOwner(uid)){ toast('Tidak bisa ban owner!'); return; }
+  if(!confirm(`${isBanned?'Unban':'Ban'} user "${name}"?`)) return;
+  await db.collection('users').doc(uid).update({banned:!isBanned});
+  toast(isBanned?`✅ ${name} di-unban`:`🚫 ${name} di-ban`);
+  adminLoadUsers();
+}
+
+async function adminLoadPosts(){
+  const list=document.getElementById('adminList');
+  list.innerHTML=`<div style="text-align:center;padding:20px;color:var(--muted2)">Memuat...</div>`;
+  try {
+    const snap=await db.collection('posts').orderBy('createdAt','desc').limit(30).get();
+    list.innerHTML=`<div class="set-section"><div class="set-sec-label">Post Terbaru (${snap.size})</div><div class="set-group">`+
+      snap.docs.map(d=>{
+        const p=d.data();
+        return `<div class="set-item">
+          <div class="set-label"><div class="set-name">${(p.cap||'(no caption)').slice(0,40)}</div><div class="set-desc">by ${p.name||'?'} · ${p.timeStr||''}</div></div>
+          <button onclick="adminDeletePost('${d.id}')" style="background:rgba(255,77,77,.1);border:1px solid rgba(255,77,77,.3);color:#ff4d4d;border-radius:8px;padding:5px 10px;font-size:11px;cursor:pointer">Hapus</button>
+        </div>`;
+      }).join('')+`</div></div>`;
+  } catch(e){ list.innerHTML=`<div style="color:#ff4d4d;text-align:center;padding:20px">Gagal: ${e.message}</div>`; }
+}
+
+async function adminDeletePost(id){
+  if(!confirm('Hapus post ini?')) return;
+  await db.collection('posts').doc(id).delete();
+  toast('Post dihapus');
+  adminLoadPosts();
+}
+
+async function adminClearGlobalChat(){
+  if(!confirm('Hapus SEMUA pesan Global Chat? Tidak bisa dibatalkan!')) return;
+  await rtdb.ref('globalChat').remove();
+  toast('Global chat dibersihkan');
+}
+
+async function sendAnnouncement(){
+  const txt=document.getElementById('announceTxt').value.trim();
+  if(!txt){ toast('Tulis pengumuman dulu!'); return; }
+  await rtdb.ref('announcement').set({ text:txt, ts:Date.now(), by:S.auth.uid });
+  document.getElementById('announceTxt').value='';
+  toast('📢 Pengumuman dikirim ke semua user!');
 }
 
 function scrollToTop(){
