@@ -705,6 +705,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
       <span class="nav-tip">Profil</span>
     </button>
     <div class="sb-sp"></div>
+    <button class="nav-i" onclick="openXpEvents()" title="Claim XP">
+      <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <span class="nav-tip">Claim XP</span>
+    </button>
+    <button class="nav-i" onclick="openBadgeShop()" title="Badge Shop">
+      <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      <span class="nav-tip">Badge Shop</span>
+    </button>
     <button class="nav-i" onclick="openFavorit()" title="Favorit">
       <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
       <span class="nav-tip">Favorit</span>
@@ -1045,7 +1053,17 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
               <a class="soc-item" href="https://github.com/ryo405" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#24292e,#444)">🐙</div><div class="soc-info"><div class="soc-name">GitHub</div><div class="soc-handle">ryo405</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
             </div>
           </div>
-          <div class="set-about">MWH v2.5<br><span>XP System, Level, Badges, Admin Fix</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
+          <div class="set-section">
+            <div class="set-sec-label">💰 Beli XP / Level</div>
+            <div class="set-group">
+              <div class="set-item" onclick="openWallet()">
+                <div class="set-icon" style="background:linear-gradient(135deg,rgba(255,215,0,.2),rgba(255,107,138,.1))">💸</div>
+                <div class="set-label"><div class="set-name">XP Shop</div><div class="set-desc">Beli XP atau level boost langsung ke owner</div></div>
+                <div class="set-right"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div>
+              </div>
+            </div>
+          </div>
+          <div class="set-about">MWH v2.7<br><span>XP/Level, Badge Shop, Admin Fix, Chat dari Profil</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
         </div>
       </div>
     </div>
@@ -1085,7 +1103,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
         <div class="set-section">
           <div class="set-sec-label">Kelola XP User</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <input id="adminXpUid" class="form-input" placeholder="UID atau @username user...">
+            <select id="adminXpUid" class="form-input" style="background:var(--surface2)">
+              <option value="">-- Pilih User --</option>
+            </select>
             <div style="display:flex;gap:8px">
               <input id="adminXpAmount" class="form-input" type="number" placeholder="Jumlah XP" style="flex:1">
               <select id="adminXpAction" class="form-input" style="flex:1;background:var(--surface2)">
@@ -1101,8 +1121,20 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
         <div class="set-section">
           <div class="set-sec-label">Kasih Badge ke User</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <input id="adminBadgeUid" class="form-input" placeholder="UID user...">
-            <input id="adminBadgeId" class="form-input" placeholder="Badge ID (misal: verified, og, pro...)">
+            <select id="adminBadgeUid" class="form-input" style="background:var(--surface2)">
+              <option value="">-- Pilih User --</option>
+            </select>
+            <select id="adminBadgeId" class="form-input" style="background:var(--surface2)">
+              <option value="">-- Pilih Badge --</option>
+              <option value="og">👑 OG</option>
+              <option value="pro">⚡ Pro</option>
+              <option value="artist">🎨 Artist</option>
+              <option value="dev">💻 Dev</option>
+              <option value="memer">😂 Memer</option>
+              <option value="hunter">🎯 Hunter</option>
+              <option value="legend">🏆 Legend</option>
+              <option value="mythic">🌟 Mythic</option>
+            </select>
             <button onclick="adminGiveBadge()" style="background:linear-gradient(135deg,#f7971e,#ffd200);border:none;border-radius:10px;color:#000;padding:11px;font-weight:700;font-size:13px;font-family:'Space Grotesk',sans-serif;cursor:pointer">🏅 Kasih Badge</button>
           </div>
         </div>
@@ -1149,6 +1181,41 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
     </div>
+  </div>
+</div>
+
+<!-- WALLET / XP SHOP MODAL -->
+<div class="cmt-overlay" id="walletOverlay" onclick="closeWallet()"></div>
+<div class="cmt-sheet" id="walletSheet" style="max-height:80vh">
+  <div class="cmt-handle"></div>
+  <div class="cmt-head"><div class="cmt-title">💰 XP Shop</div><button class="cmt-close" onclick="closeWallet()">✕</button></div>
+  <div class="cmt-list" style="padding:16px;display:flex;flex-direction:column;gap:12px">
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center">
+      <div style="font-size:12px;color:var(--muted2)">XP Kamu saat ini</div>
+      <div style="font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent" id="walletXpDisplay">0</div>
+      <div style="font-size:11px;color:var(--muted2)" id="walletLvDisplay">LV 1 — Newbie</div>
+    </div>
+    <div style="font-size:12px;color:var(--muted2);background:var(--surface2);border-radius:10px;padding:10px 12px;border:1px solid var(--border)">
+      💡 Beli XP/Level dengan transfer ke owner. Setelah transfer, screenshot dan kirim ke owner via DM atau WA grup. Owner akan tambahkan XP secara manual.
+    </div>
+    ${[
+      {xp:100,  label:'Starter Pack',  price:'Rp 2.000',   icon:'⚡', color:'#4ade80'},
+      {xp:500,  label:'Explorer Pack', price:'Rp 5.000',   icon:'🚀', color:'#60a5fa'},
+      {xp:1500, label:'Pro Pack',      price:'Rp 10.000',  icon:'💎', color:'#a78bfa'},
+      {xp:5000, label:'Elite Pack',    price:'Rp 25.000',  icon:'👑', color:'#ffd700'},
+      {xp:20000,label:'Legend Pack',   price:'Rp 75.000',  icon:'🌟', color:'#f97316'},
+    ].map(p=>`
+    <div style="display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 14px">
+      <div style="font-size:28px">${p.icon}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:13px">${p.label}</div>
+        <div style="font-size:12px;color:${p.color};font-weight:600">+${p.xp.toLocaleString()} XP</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-weight:800;font-size:14px">${p.price}</div>
+        <button onclick="buyXpPack(${p.xp},'${p.label}','${p.price}')" style="margin-top:4px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:8px;color:#fff;padding:5px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif">Beli</button>
+      </div>
+    </div>`).join('')}
   </div>
 </div>
 
@@ -1451,8 +1518,13 @@ let unsubPosts = null;
 function loadPosts(){
   if(unsubPosts){ unsubPosts(); unsubPosts = null; }
   unsubPosts = db.collection('posts').orderBy('createdAt','desc').limit(30)
-    .onSnapshot(snap=>{
+    .onSnapshot(async snap=>{
       S.posts = snap.docs.map(d=>({id:d.id,...d.data()}));
+      // Preload XP untuk semua unique user di feed
+      const uids = [...new Set(S.posts.map(p=>p.uid).filter(Boolean))];
+      const myUid = S.auth?.uid;
+      if(myUid && !xpCache[myUid] && S.xpData) xpCache[myUid] = S.xpData;
+      await Promise.all(uids.filter(uid=>!xpCache[uid]).map(uid=>preloadUserXp(uid)));
       renderFeed();
       if(document.getElementById('page-favorit')?.classList.contains('active')) renderFavorit();
     }, err=>{ console.error('loadPosts error:', err); });
@@ -1744,10 +1816,51 @@ const VERIFIED_UIDS = ['kYQi77AKzhf2712N3D7jwuPabOs2'];
 function isOwner(uid){ return OWNER_UIDS.includes(uid); }
 function isVerified(uid){ return VERIFIED_UIDS.includes(uid); }
 
+// Cache XP data per user untuk getBadge
+const xpCache = {};
+
+async function preloadUserXp(uid){
+  if(xpCache[uid]) return xpCache[uid];
+  try {
+    const doc = await db.collection('xp').doc(uid).get();
+    xpCache[uid] = doc.exists ? doc.data() : {xp:0, badges:[]};
+  } catch(e){ xpCache[uid] = {xp:0, badges:[]}; }
+  return xpCache[uid];
+}
+
 function getBadge(uid){
   if(isOwner(uid)) return '<span class="badge owner" title="Owner">&#10003;</span>';
   if(isVerified(uid)) return '<span class="badge verified" title="Verified">&#10003;</span>';
+  // Cek cache XP badge
+  const xd = xpCache[uid];
+  if(!xd) return '';
+  const allB = getBadgeDefs();
+  const earned = xd.badges||[];
+  if(earned.length === 0) return '';
+  // Tampilkan badge pertama yang dimiliki (paling prestisius)
+  const order = ['mythic','legend','hunter','pro','og','artist','dev','memer'];
+  for(const bid of order){
+    if(earned.includes(bid)){
+      const b = allB.find(x=>x.id===bid);
+      if(b) return `<span class="badge" style="background:${b.bg};border:1px solid ${b.border};color:${b.color};font-size:9px;padding:1px 5px;border-radius:4px;margin-left:3px;vertical-align:middle">${b.icon}</span>`;
+    }
+  }
   return '';
+}
+
+function getBadgesFull(uid){
+  // Return semua badges HTML untuk profil
+  if(isOwner(uid)) return `<span class="prof-badge" style="background:rgba(255,215,0,.2);border-color:rgba(255,215,0,.5);color:#ffd700">⚡ Creator</span>`;
+  const xd = xpCache[uid];
+  const earned = xd?.badges||[];
+  const lvNum = getLevelNum(xd?.xp||0);
+  let html = `<span class="prof-badge">LV ${lvNum}</span>`;
+  const allB = getBadgeDefs();
+  earned.forEach(bid=>{
+    const b=allB.find(x=>x.id===bid);
+    if(b) html+=`<span class="prof-badge" style="background:${b.bg};border-color:${b.border};color:${b.color}">${b.icon} ${b.name}</span>`;
+  });
+  return html;
 }
 
 
@@ -2134,50 +2247,74 @@ async function viewUserProfile(uid, name, avUrl){
   overlay.classList.add('open'); sheet.classList.add('open');
 
   try {
-    // Load user data
-    const userDoc = await db.collection('users').doc(uid).get();
-    const userData = userDoc.exists ? userDoc.data() : {first:name, last:'', bio:'', user:''};
+    const [userDoc, followDoc, followersSnap] = await Promise.all([
+      db.collection('users').doc(uid).get(),
+      S.auth ? db.collection('follows').doc(`${S.auth.uid}_${uid}`).get() : Promise.resolve({exists:false}),
+      db.collection('follows').where('targetUid','==',uid).get()
+    ]);
+    // XP dari cache atau fetch
+    if(!xpCache[uid]) await preloadUserXp(uid);
+    const xpData = xpCache[uid] || {xp:0, badges:[]};
+    const userData = userDoc.exists ? userDoc.data() : {first:name,last:'',bio:'',user:''};
     const fullName = [userData.first,userData.last].filter(Boolean).join(' ')||name;
+    const isFollowing = followDoc.exists;
+    const followerCount = followersSnap.size;
+    const myUid = S.auth?.uid;
 
-    // Load user posts - fallback kalau index belum dibuat
+    // XP/Level
+    const totalXp = xpData.xp||0;
+    const lvNum = isOwner(uid) ? '999+' : getLevelNum(totalXp);
+    const lvInfo = getLevel(totalXp);
+    const lvTitle = isOwner(uid) ? 'Creator ⚡' : lvInfo.title;
+
+    // Badges - pakai cache yang sudah di-preload
+    const badgesHTML = getBadgesFull(uid);
+
+    // Posts
     let userPosts = [];
     try {
-      const postsSnap = await db.collection('posts').where('uid','==',uid).orderBy('createdAt','desc').limit(9).get();
-      userPosts = postsSnap.docs.map(d=>({id:d.id,...d.data()}));
+      const ps = await db.collection('posts').where('uid','==',uid).orderBy('createdAt','desc').limit(9).get();
+      userPosts = ps.docs.map(d=>({id:d.id,...d.data()}));
     } catch(e) {
-      // Fallback tanpa orderBy
-      const postsSnap = await db.collection('posts').where('uid','==',uid).limit(9).get();
-      userPosts = postsSnap.docs.map(d=>({id:d.id,...d.data()}));
+      const ps = await db.collection('posts').where('uid','==',uid).limit(9).get();
+      userPosts = ps.docs.map(d=>({id:d.id,...d.data()}));
     }
-
-    // Check follow status
-    const myUid = S.auth?.uid;
-    const followDoc = myUid ? await db.collection('follows').doc(`${myUid}_${uid}`).get() : null;
-    const isFollowing = followDoc?.exists || false;
-
-    // Get follower count
-    const followersSnap = await db.collection('follows').where('targetUid','==',uid).get();
-    const followerCount = followersSnap.size;
 
     const init = fullName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
     const avHTML = avUrl ? `<img src="${avUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : init;
-    const badge = getBadge(uid);
 
     content.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding-bottom:16px">
-        <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;overflow:hidden">${avHTML}</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding-bottom:16px">
+        <div style="width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;overflow:hidden">${avHTML}</div>
         <div style="text-align:center">
-          <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800">${fullName}${badge}</div>
+          <div style="font-size:18px;font-weight:800">${fullName}${getBadge(uid)}</div>
           ${userData.user?`<div style="color:var(--muted2);font-size:12px">@${userData.user}</div>`:''}
-          ${userData.bio?`<div style="color:var(--muted2);font-size:12px;margin-top:4px">${userData.bio}</div>`:''}
+          ${userData.bio?`<div style="color:var(--muted2);font-size:12px;margin-top:4px;max-width:260px">${userData.bio}</div>`:''}
         </div>
+        <!-- Badges -->
+        <div style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;max-width:300px">${badgesHTML}</div>
+        <!-- Level bar mini -->
+        <div style="width:100%;max-width:300px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 12px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span style="font-size:12px;font-weight:700;color:var(--accent)">LV ${lvNum} — ${lvTitle}</span>
+            <span style="font-size:11px;color:var(--muted2)">${isOwner(uid)?'∞':totalXp+' XP'}</span>
+          </div>
+          <div style="background:var(--surface3);border-radius:99px;height:4px"><div style="height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:${isOwner(uid)?100:Math.min(100,Math.round((()=>{const{cur,need}=getXpForNext(totalXp);return cur/need*100;})()))}%;border-radius:99px"></div></div>
+        </div>
+        <!-- Stats -->
         <div style="display:flex;gap:24px;text-align:center">
           <div><div style="font-weight:700;font-size:16px">${userPosts.length}</div><div style="font-size:11px;color:var(--muted2)">Post</div></div>
           <div><div style="font-weight:700;font-size:16px" id="uprofFollowers">${followerCount}</div><div style="font-size:11px;color:var(--muted2)">Follower</div></div>
         </div>
-        ${myUid && myUid!==uid ? `<button id="uprofFollowBtn" onclick="toggleFollow('${uid}','${fullName}')" style="background:${isFollowing?'var(--surface2)':'linear-gradient(135deg,var(--accent),var(--accent2))'};border:${isFollowing?'1px solid var(--border)':'none'};border-radius:10px;color:${isFollowing?'var(--muted2)':'#fff'};padding:9px 28px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer">${isFollowing?'Mengikuti':'Ikuti'}</button>` : ''}
+        <!-- Action buttons -->
+        ${myUid && myUid!==uid ? `
+        <div style="display:flex;gap:8px">
+          <button id="uprofFollowBtn" onclick="toggleFollow('${uid}','${fullName.replace(/'/g,"\\'")}')" style="background:${isFollowing?'var(--surface2)':'linear-gradient(135deg,var(--accent),var(--accent2))'};border:${isFollowing?'1px solid var(--border)':'none'};border-radius:10px;color:${isFollowing?'var(--muted2)':'#fff'};padding:9px 24px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer">${isFollowing?'✓ Mengikuti':'Ikuti'}</button>
+          <button onclick="closeUserProfile();startChat('${uid}','${fullName.replace(/'/g,"\\'")}','${avUrl||''}')" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:9px 18px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer">💬 Chat</button>
+        </div>` : ''}
       </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:8px">
+      <!-- Post grid -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px">
         ${userPosts.flatMap(p=>(p.files||[]).slice(0,1)).slice(0,9).map(f=>
           `<div style="aspect-ratio:1;background:var(--surface2);border-radius:6px;overflow:hidden">
             <img src="${f.url}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">
@@ -2186,7 +2323,7 @@ async function viewUserProfile(uid, name, avUrl){
         ${userPosts.length===0?`<div style="grid-column:1/-1;text-align:center;color:var(--muted2);padding:20px;font-size:12px">Belum ada post</div>`:''}
       </div>`;
   } catch(e){
-    content.innerHTML = `<div style="text-align:center;color:var(--muted2)">Gagal memuat profil</div>`;
+    content.innerHTML = `<div style="text-align:center;padding:30px;color:var(--muted2)">Gagal memuat profil<br><small>${e.message}</small></div>`;
   }
 }
 
@@ -2393,8 +2530,9 @@ async function loadUserXp(){
   try {
     const doc = await db.collection('xp').doc(S.auth.uid).get();
     S.xpData = doc.exists ? doc.data() : {xp:0, badges:[], claims:{}};
-    // Owner gets max XP
     if(isOwner(S.auth.uid)) S.xpData.xp = Math.max(S.xpData.xp||0, 999999);
+    // Sync ke cache supaya getBadge() bisa baca
+    xpCache[S.auth.uid] = S.xpData;
     updateXpUI();
   } catch(e){ S.xpData={xp:0,badges:[],claims:{}}; }
 }
@@ -2426,21 +2564,8 @@ function updateBadgeDisplay(){
   const badgeEl = document.getElementById('profBadges');
   if(!badgeEl) return;
   const uid=S.auth?.uid;
-  const xpData=S.xpData||{};
-  const earned=xpData.badges||[];
-  let html='';
-  if(isOwner(uid)){
-    html=`<span class="prof-badge" style="background:linear-gradient(135deg,rgba(255,215,0,.2),rgba(255,107,138,.2));border-color:rgba(255,215,0,.5);color:#ffd700;font-weight:700">⚡ Creator</span>`;
-  } else {
-    html=`<span class="prof-badge">LV ${getLevelNum(xpData.xp||0)}</span>`;
-  }
-  // Custom earned badges
-  const allBadges = getBadgeDefs();
-  earned.forEach(bid=>{
-    const b=allBadges.find(x=>x.id===bid);
-    if(b) html+=`<span class="prof-badge" style="background:${b.bg};border-color:${b.border};color:${b.color}">${b.icon} ${b.name}</span>`;
-  });
-  badgeEl.innerHTML=html;
+  if(uid && S.xpData) xpCache[uid] = S.xpData;
+  badgeEl.innerHTML = getBadgesFull(uid);
 }
 
 async function addXp(amount, reason){
@@ -2583,27 +2708,59 @@ async function buyBadge(badgeId){
 
 /* ══ ADMIN XP TOOLS ══ */
 async function adminGiveXp(){
-  const uid=document.getElementById('adminXpUid').value.trim();
+  const sel=document.getElementById('adminXpUid');
+  const uid=sel.value;
+  const uName=sel.options[sel.selectedIndex]?.text||uid;
   const amount=parseInt(document.getElementById('adminXpAmount').value)||0;
   const action=document.getElementById('adminXpAction').value;
-  if(!uid||!amount){ toast('Isi UID dan jumlah XP!'); return; }
+  if(!uid){ toast('Pilih user dulu!'); return; }
+  if(!amount){ toast('Isi jumlah XP!'); return; }
   try {
     const ref=db.collection('xp').doc(uid);
     if(action==='add') await ref.set({xp:firebase.firestore.FieldValue.increment(amount)},{merge:true});
     else if(action==='sub') await ref.set({xp:firebase.firestore.FieldValue.increment(-amount)},{merge:true});
     else await ref.set({xp:amount},{merge:true});
-    toast(`✅ XP berhasil di-${action==='add'?'tambah':action==='sub'?'kurangi':'set'}: ${amount}`);
+    toast(`✅ XP ${action==='add'?'+':action==='sub'?'-':'='} ${amount} → ${uName}`);
   } catch(e){ toast('Gagal: '+e.message); }
 }
 
 async function adminGiveBadge(){
-  const uid=document.getElementById('adminBadgeUid').value.trim();
-  const bid=document.getElementById('adminBadgeId').value.trim().toLowerCase();
-  if(!uid||!bid){ toast('Isi UID dan Badge ID!'); return; }
+  const selU=document.getElementById('adminBadgeUid');
+  const uid=selU.value;
+  const uName=selU.options[selU.selectedIndex]?.text||uid;
+  const bid=document.getElementById('adminBadgeId').value;
+  if(!uid){ toast('Pilih user dulu!'); return; }
+  if(!bid){ toast('Pilih badge dulu!'); return; }
   try {
     await db.collection('xp').doc(uid).set({badges:firebase.firestore.FieldValue.arrayUnion(bid)},{merge:true});
-    toast(`🏅 Badge "${bid}" diberikan ke ${uid.slice(0,8)}...`);
+    toast(`🏅 Badge diberikan ke ${uName}!`);
   } catch(e){ toast('Gagal: '+e.message); }
+}
+
+/* ══ WALLET ══ */
+function openWallet(){
+  const xpData=S.xpData||{xp:0};
+  const totalXp=xpData.xp||0;
+  const lvNum=isOwner(S.auth?.uid)?'999+':getLevelNum(totalXp);
+  const lvTitle=isOwner(S.auth?.uid)?'Creator':getLevel(totalXp).title;
+  const el=document.getElementById('walletXpDisplay');
+  const el2=document.getElementById('walletLvDisplay');
+  if(el) el.textContent=isOwner(S.auth?.uid)?'∞':totalXp.toLocaleString();
+  if(el2) el2.textContent=`LV ${lvNum} — ${lvTitle}`;
+  document.getElementById('walletOverlay').classList.add('open');
+  document.getElementById('walletSheet').classList.add('open');
+}
+function closeWallet(){
+  document.getElementById('walletOverlay').classList.remove('open');
+  document.getElementById('walletSheet').classList.remove('open');
+}
+function buyXpPack(xp, label, price){
+  const name=[S.profile.first,S.profile.last].filter(Boolean).join(' ')||'User';
+  const msg=`Halo! Saya ${name} mau beli ${label} (${xp.toLocaleString()} XP) seharga ${price} di MWH. UID: ${S.auth?.uid}`;
+  if(confirm(`Beli ${label} (+${xp.toLocaleString()} XP) - ${price}?\n\nKamu akan diarahkan ke grup WA untuk konfirmasi ke owner.`)){
+    navigator.clipboard?.writeText(msg).then(()=>toast('✅ Pesan disalin! Paste di grup WA'));
+    window.open('https://chat.whatsapp.com/ESSEWAs4MKd9BZyZiutLo0','_blank');
+  }
 }
 
 function clearNotifDot(){
@@ -2744,11 +2901,15 @@ async function sendNotif(targetUid, type, text=''){
 
 /* ══ ANNOUNCEMENT ══ */
 function showAnnouncement(text){
+  // Hapus yg lama dulu
+  document.querySelectorAll('.ann-banner').forEach(e=>e.remove());
   const el=document.createElement('div');
-  el.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;max-width:320px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.3);animation:fadeUp .3s ease';
-  el.innerHTML=`📢 ${text}<br><button onclick="this.parentElement.remove()" style="margin-top:8px;background:rgba(255,255,255,.2);border:none;color:#fff;padding:4px 14px;border-radius:6px;font-size:11px;cursor:pointer">Tutup</button>`;
+  el.className='ann-banner';
+  el.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:12px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;max-width:300px;width:90%;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:fadeUp .3s ease';
+  el.innerHTML=`<div style="font-size:10px;opacity:.8;margin-bottom:4px">📢 PENGUMUMAN</div>${text}<div><button onclick="this.closest('.ann-banner').remove()" style="margin-top:8px;background:rgba(255,255,255,.25);border:none;color:#fff;padding:4px 16px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'Space Grotesk',sans-serif">Tutup ✕</button></div>`;
   document.body.appendChild(el);
-  setTimeout(()=>el.remove(), 10000);
+  // Auto hilang 15 detik
+  setTimeout(()=>{ if(el.parentNode){ el.style.opacity='0'; el.style.transition='opacity .5s'; setTimeout(()=>el.remove(),500); }},15000);
 }
 
 /* ══ ADMIN PANEL ══ */
@@ -2769,7 +2930,12 @@ async function adminLoadStats(){
       <div style="font-size:11px;color:var(--muted2)">${s.label}</div>
     </div>`).join('');
     document.getElementById('adminSubTxt').textContent=`${postsSnap.size} post · ${usersSnap.size} user`;
-  } catch(e){ toast('Gagal load stats'); }
+    // Populate user dropdowns
+    const users = usersSnap.docs.map(d=>({uid:d.id,...d.data()}));
+    const opts = `<option value="">-- Pilih User --</option>` +
+      users.map(u=>{const name=[u.first,u.last].filter(Boolean).join(' ')||'Tanpa Nama';return `<option value="${u.uid}">${name}${u.user?' (@'+u.user+')':''}</option>`;}).join('');
+    ['adminXpUid','adminBadgeUid'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+  } catch(e){ toast('Gagal load stats: '+e.message); }
 }
 
 async function adminLoadUsers(){
