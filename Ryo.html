@@ -928,8 +928,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
         </div>
         <div class="prof-stats">
           <div class="ps-item"><div class="ps-num" id="statPosts">0</div><div class="ps-lbl">Post</div></div>
-          <div class="ps-item"><div class="ps-num">0</div><div class="ps-lbl">Followers</div></div>
-          <div class="ps-item"><div class="ps-num">0</div><div class="ps-lbl">Following</div></div>
+          <div class="ps-item"><div class="ps-num" id="statFollowers">0</div><div class="ps-lbl">Followers</div></div>
+          <div class="ps-item"><div class="ps-num" id="statFollowing">0</div><div class="ps-lbl">Following</div></div>
         </div>
         <div class="prof-grid-sec">
           <div class="prof-grid-hdr">
@@ -1028,7 +1028,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
               <a class="soc-item" href="https://github.com/ryo405" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#24292e,#444)">🐙</div><div class="soc-info"><div class="soc-name">GitHub</div><div class="soc-handle">ryo405</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
             </div>
           </div>
-          <div class="set-about">MWH v2.0<br><span>Global Chat, Favorit, Notif, Rename</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
+          <div class="set-about">MWH v2.2<br><span>Global Chat, Favorit, Notif, Rename</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
         </div>
       </div>
     </div>
@@ -1072,7 +1072,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 
 <!-- VERSION BADGE -->
 <div class="version-badge">
-  <span class="vb-name">MWH v2.0</span>
+  <span class="vb-name">MWH v2.2</span>
   <span class="vb-by">By Ryo · Qyro</span>
 </div>
 
@@ -1315,107 +1315,149 @@ function goBack(){
 }
 
 /* ══ FEED — Firestore ══ */
+let unsubPosts = null;
 function loadPosts(){
-  db.collection('posts').orderBy('createdAt','desc').limit(30)
+  if(unsubPosts){ unsubPosts(); unsubPosts = null; }
+  unsubPosts = db.collection('posts').orderBy('createdAt','desc').limit(30)
     .onSnapshot(snap=>{
       S.posts = snap.docs.map(d=>({id:d.id,...d.data()}));
       renderFeed();
-    });
+      if(document.getElementById('page-favorit')?.classList.contains('active')) renderFavorit();
+    }, err=>{ console.error('loadPosts error:', err); });
+}
+
+function buildPostHTML(p, uid){
+  const avHTML = p.avUrl
+    ? `<img src="${p.avUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">`
+    : (p.av||'?');
+  const media = (p.files||[]).map(f => f.type&&f.type.startsWith('video')
+    ? `<video class="post-vid" src="${f.url}" controls></video>`
+    : `<img class="post-img" src="${f.url}" onerror="this.style.display='none'" loading="lazy">`
+  ).join('');
+  const cats = (p.cats||[]).map(c=>`<span class="post-cat">${catE[c]||'✨'} ${c}</span>`).join('');
+  const dl  = p.download ? `<a class="post-link" href="${p.download}" target="_blank" style="color:var(--accent3);border-color:rgba(61,255,160,.25);background:rgba(61,255,160,.07)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Download</span></a>` : '';
+  const tut = p.tutorial ? `<a class="post-link" href="${p.tutorial}" target="_blank" style="color:var(--accent2);border-color:rgba(255,107,138,.3)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><span>Tutorial</span></a>` : '';
+  const lnk = p.link    ? `<a class="post-link" href="${p.link}" target="_blank"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>Link</span></a>` : '';
+  const vid = p.video   ? `<div style="margin-top:8px;border-radius:10px;overflow:hidden;background:#000;border:1px solid var(--border)">${getVideoEmbed(p.video)}</div>` : '';
+  const dev = p.dev     ? `<div class="post-dev">by <b>${p.dev}</b></div>` : '';
+  const liked = (p.likedBy||[]).includes(uid);
+  const bkm   = (S.bookmarks||[]).includes(p.id);
+  const canDel = uid===p.uid || isOwner(uid);
+  return `<div class="post-card" data-id="${p.id}" onclick="openBS('${p.id}')">
+    <div class="post-head" onclick="event.stopPropagation()">
+      <div class="post-av" style="background:${p.avUrl?'none':p.bg||'var(--accent)'}">${avHTML}</div>
+      <div class="post-info">
+        <div class="post-name" onclick="event.stopPropagation();viewUserProfile('${p.uid}','${(p.name||'User').replace(/'/g,'')}','${p.avUrl||''}')" style="cursor:pointer">${p.name||'User'}${getBadge(p.uid)}</div>
+        <div class="post-cats">${cats}</div>
+      </div>
+      <div class="post-time">${p.timeStr||''}</div>
+    </div>
+    ${media?`<div class="post-media">${media}</div>`:''}
+    <div class="post-body">${p.cap?`<div class="post-cap">${p.cap}</div>`:''}${dl}${tut}${lnk}${vid}${dev}</div>
+    <div class="post-actions" onclick="event.stopPropagation()">
+      <button class="act-btn${liked?' liked':''}" data-like="${p.id}" onclick="toggleLike('${p.id}',this)">
+        <svg width="13" height="13" fill="${liked?'currentColor':'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span>${(p.likedBy||[]).length}</span>
+      </button>
+      <button class="act-btn" onclick="event.stopPropagation();openComments('${p.id}')">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>${p.commentsCount||0}</span>
+      </button>
+      <button class="act-btn${bkm?' liked':''}" onclick="event.stopPropagation();toggleBookmark('${p.id}',this)">
+        <svg width="13" height="13" fill="${bkm?'currentColor':'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+      </button>
+      <button class="act-btn" onclick="event.stopPropagation();sharePost('${p.id}','${(p.cap||p.name||'').replace(/'/g,'').slice(0,30)}')">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </button>
+      ${canDel?`<button class="act-btn" style="margin-left:auto;color:#ff4d4d" onclick="event.stopPropagation();deletePost('${p.id}')"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>`:''}
+    </div>
+  </div>`;
+}
+
+function patchPostCard(p, uid){
+  const card = document.querySelector(`.post-card[data-id="${p.id}"]`);
+  if(!card) return false;
+  const liked = (p.likedBy||[]).includes(uid);
+  const likeBtn = card.querySelector('[data-like]');
+  if(likeBtn){
+    likeBtn.className = 'act-btn' + (liked?' liked':'');
+    likeBtn.querySelector('svg').setAttribute('fill', liked?'currentColor':'none');
+    likeBtn.querySelector('span').textContent = (p.likedBy||[]).length;
+  }
+  const spans = card.querySelectorAll('.act-btn span');
+  if(spans[1]) spans[1].textContent = p.commentsCount||0;
+  return true;
 }
 
 function renderFeed(){
-  const fc=document.getElementById('feedContainer'), sr=document.getElementById('storiesRow');
-  sr.querySelectorAll('.story:not(.story-add)').forEach(s=>s.remove());
-  const seen = new Set();
-  S.posts.forEach(p=>{
-    if(seen.has(p.uid)) return; seen.add(p.uid);
-    const s=document.createElement('div'); s.className='story';
-    const avHTML=p.avUrl?`<img src="${p.avUrl}">`:`<span style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:800;color:#fff">${p.av||'?'}</span>`;
-    s.innerHTML=`<div class="story-ring" style="background:${p.avUrl?'none':p.bg||'var(--accent)'}"><div class="story-inner">${avHTML}</div></div><span class="story-label">${(p.name||'User').split(' ')[0]}</span>`;
-    sr.appendChild(s);
-  });
-
-  // Filter by search
+  const fc = document.getElementById('feedContainer');
+  const sr = document.getElementById('storiesRow');
+  const uid = S.auth?.uid;
   let posts = S.posts;
-  if(searchQuery){
-    posts = posts.filter(p=>
-      (p.cap||'').toLowerCase().includes(searchQuery)||
-      (p.name||'').toLowerCase().includes(searchQuery)||
-      (p.dev||'').toLowerCase().includes(searchQuery)||
-      (p.cats||[]).some(c=>c.toLowerCase().includes(searchQuery))
-    );
+
+  // Stories — only rebuild if changed
+  const curStoryUids = [...sr.querySelectorAll('.story:not(.story-add)')].map(s=>s.dataset.uid).join(',');
+  const newStoryUids = [...new Set(posts.map(p=>p.uid))].join(',');
+  if(curStoryUids !== newStoryUids){
+    sr.querySelectorAll('.story:not(.story-add)').forEach(s=>s.remove());
+    [...new Set(posts.map(p=>p.uid))].forEach(u2=>{
+      const p=posts.find(p=>p.uid===u2); if(!p) return;
+      const s=document.createElement('div'); s.className='story'; s.dataset.uid=u2;
+      const av=p.avUrl?`<img src="${p.avUrl}">`:`<span style="font-weight:800;color:#fff">${p.av||'?'}</span>`;
+      s.innerHTML=`<div class="story-ring" style="background:${p.avUrl?'none':p.bg||'var(--accent)'}"><div class="story-inner">${av}</div></div><span class="story-label">${(p.name||'').split(' ')[0]}</span>`;
+      sr.appendChild(s);
+    });
   }
+
+  // Filter search
+  if(searchQuery) posts=posts.filter(p=>(p.cap||'').toLowerCase().includes(searchQuery)||(p.name||'').toLowerCase().includes(searchQuery)||(p.cats||[]).some(c=>c.toLowerCase().includes(searchQuery)));
 
   if(posts.length===0){
-    fc.innerHTML=searchQuery
-      ? `<div class="empty"><div class="empty-ico">🔍</div><div class="empty-t">Tidak ada hasil untuk "${searchQuery}"</div></div>`
-      : `<div class="empty"><div class="empty-ico">🌌</div><div class="empty-t">Feed masih kosong</div><div class="empty-s">Belum ada yang posting nih. Jadilah yang pertama!</div><button class="empty-btn" onclick="goPage('upload','forward')"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Buat Post Pertama</button></div>`;
+    fc.innerHTML=searchQuery?`<div class="empty"><div class="empty-ico">🔍</div><div class="empty-t">Tidak ada hasil</div></div>`:`<div class="empty"><div class="empty-ico">🌌</div><div class="empty-t">Feed kosong</div><button class="empty-btn" onclick="goPage('upload','forward')">Buat Post</button></div>`;
     return;
   }
-  const uid = S.auth?.uid;
-  fc.innerHTML=posts.map((p,i)=>{
-    const avHTML=p.avUrl?`<img src="${p.avUrl}">`:(p.av||'?');
-    const media=(p.files||[]).map(f=>f.type&&f.type.startsWith('video')
-      ?`<video class="post-vid" src="${f.url}" controls></video>`
-      :`<img class="post-img" src="${f.url}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy"><div style="display:none;align-items:center;justify-content:center;background:var(--surface2);border-radius:10px;padding:20px;gap:10px;flex-direction:column;color:var(--muted2);font-size:12px"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Gambar tidak bisa ditampilkan<a href="${f.url}" target="_blank" style="color:var(--accent);font-size:11px">Buka link</a></div>`
-    ).join('');
-    const cats=(p.cats||[]).map(c=>`<span class="post-cat">${catE[c]||'✨'} ${c}</span>`).join('');
-    const lnk=p.link?`<a class="post-link" href="${p.link}" target="_blank"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>${p.link}</span></a>`:'';
-    const tut=p.tutorial?`<a class="post-link" href="${p.tutorial}" target="_blank" style="color:var(--accent2);border-color:rgba(255,107,138,.3)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><span>Tutorial / Demo</span></a>`:'';
-    const dl=p.download?`<a class="post-link" href="${p.download}" target="_blank" style="color:var(--accent3);border-color:rgba(61,255,160,.25);background:rgba(61,255,160,.07)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Download File</span></a>`:'';
-    const vid=p.video?`<div style="margin-top:8px;border-radius:10px;overflow:hidden;background:#000;border:1px solid var(--border)">${getVideoEmbed(p.video)}</div>`:'';
-    const bkm=S.bookmarks?.includes(p.id);
 
-    const dev=p.dev?`<div class="post-dev">by <b>${p.dev}</b></div>`:'';
-    const liked=(p.likedBy||[]).includes(uid);
-    const likesCount=(p.likedBy||[]).length;
-    const commentsCount=(p.commentsCount||0);
-    return `<div class="post-card" style="animation-delay:${i*.05}s" onclick="openBS('${p.id}')">
-      <div class="post-head" onclick="event.stopPropagation()">
-        <div class="post-av" style="background:${p.avUrl?'none':p.bg||'var(--accent)'}">${avHTML}</div>
-        <div class="post-info"><div class="post-name" onclick="event.stopPropagation();viewUserProfile('${p.uid}','${(p.name||'User').replace(/'/g,'')}','${p.avUrl||''}')" style="cursor:pointer;text-decoration:underline dotted">${p.name||'User'}${getBadge(p.uid)}</div><div class="post-cats">${cats}</div></div>
-        <div class="post-time">${p.timeStr||''}</div>
-      </div>
-      ${media?`<div>${media}</div>`:''}
-      <div class="post-body">${p.cap?`<div class="post-cap">${p.cap}</div>`:''}${dl}${tut}${lnk}${vid}${dev}</div>
-      <div class="post-actions" onclick="event.stopPropagation()">
-        <button class="act-btn ${liked?'liked':''}" onclick="toggleLike('${p.id}',this)">
-          <svg width="13" height="13" fill="${liked?'currentColor':'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          <span>${likesCount}</span>
-        </button>
-        <button class="act-btn" onclick="event.stopPropagation();openComments('${p.id}')">
-          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          <span>${commentsCount}</span>
-        </button>
-        <button class="act-btn ${bkm?'liked':''}" onclick="event.stopPropagation();toggleBookmark('${p.id}',this)" title="Simpan">
-          <svg width="13" height="13" fill="${bkm?'currentColor':'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-        </button>
-        <button class="act-btn" onclick="event.stopPropagation();sharePost('${p.id}','${(p.cap||p.name||'Post').replace(/'/g,'').slice(0,30)}')" title="Share">
-          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        </button>
-        ${(uid===p.uid||isOwner(uid))?`<button class="act-btn" style="margin-left:auto;color:#ff4d4d" onclick="event.stopPropagation();deletePost('${p.id}')">
-          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-          Hapus
-        </button>`:''}
-      </div>
-    </div>`;
-  }).join('');
+  const newIds = posts.map(p=>p.id);
+  const curIds = [...fc.querySelectorAll('.post-card')].map(c=>c.dataset.id);
+
+  // Remove deleted
+  fc.querySelectorAll('.post-card').forEach(c=>{ if(!newIds.includes(c.dataset.id)) c.remove(); });
+
+  posts.forEach((p,i)=>{
+    if(fc.querySelector(`.post-card[data-id="${p.id}"]`)){
+      patchPostCard(p, uid); // Only patch counters
+    } else {
+      const tmp=document.createElement('div');
+      tmp.innerHTML=buildPostHTML(p,uid);
+      const card=tmp.firstElementChild;
+      const cards=fc.querySelectorAll('.post-card');
+      if(!cards.length||i===0) fc.insertBefore(card, fc.firstChild);
+      else if(i>=cards.length) fc.appendChild(card);
+      else fc.insertBefore(card, cards[i]);
+    }
+  });
 }
 
 async function toggleLike(id, btn){
   if(!S.auth){ toast('Login dulu!'); return; }
   const uid = S.auth.uid;
-  const ref = db.collection('posts').doc(id);
   const post = S.posts.find(p=>p.id===id); if(!post) return;
   const liked = (post.likedBy||[]).includes(uid);
-  await ref.update({
-    likedBy: liked
-      ? firebase.firestore.FieldValue.arrayRemove(uid)
-      : firebase.firestore.FieldValue.arrayUnion(uid)
-  });
-  if(!liked && post.uid !== uid) sendNotif(post.uid, 'like');
+  // Optimistic UI update - no flicker
+  post.likedBy = liked ? (post.likedBy||[]).filter(u=>u!==uid) : [...(post.likedBy||[]), uid];
+  patchPostCard(post, uid);
+  try {
+    await db.collection('posts').doc(id).update({
+      likedBy: liked ? firebase.firestore.FieldValue.arrayRemove(uid) : firebase.firestore.FieldValue.arrayUnion(uid)
+    });
+    if(!liked && post.uid!==uid) sendNotif(post.uid,'like');
+  } catch(e){
+    // Rollback on error
+    post.likedBy = liked ? [...(post.likedBy||[]), uid] : (post.likedBy||[]).filter(u=>u!==uid);
+    patchPostCard(post, uid);
+    toast('Gagal, coba lagi');
+  }
 }
-
 /* ══ BOTTOM SHEET ══ */
 function openBS(id){
   const p=S.posts.find(p=>p.id===id); if(!p) return;
@@ -1446,7 +1488,7 @@ function openBS(id){
 }
 function closeBS(){document.getElementById('bsOverlay').classList.remove('open');document.getElementById('bsSheet').classList.remove('open');}
 
-/* ══ UPLOAD — Base64 compressed, no redirect ══ */
+/* ══ UPLOAD ══ */
 S.mediaUrls = [];
 
 async function uploadImages(files){
@@ -1457,10 +1499,9 @@ async function uploadImages(files){
   progress.style.display='block';
 
   for(let i=0; i<files.length; i++){
-    const file = files[i];
     status.textContent = `Memproses ${i+1}/${files.length}...`;
     bar.style.width = ((i/files.length)*80+10)+'%';
-    await uploadAsBase64(file);
+    await compressAndAdd(files[i]);
   }
 
   bar.style.width='100%';
@@ -1468,24 +1509,35 @@ async function uploadImages(files){
   setTimeout(()=>{ progress.style.display='none'; bar.style.width='0%'; }, 1200);
 }
 
-async function uploadAsBase64(file){
+async function compressAndAdd(file){
   return new Promise(resolve=>{
     const reader = new FileReader();
     reader.onload = e=>{
       const img = new Image();
       img.onload = ()=>{
         const canvas = document.createElement('canvas');
+        // Max 600px, quality 0.55 — target < 150KB per image
         let w=img.width, h=img.height;
-        const max=900; if(w>max){h=Math.round(h*(max/w));w=max;}
+        const max=600;
+        if(w>max){h=Math.round(h*(max/w));w=max;}
+        if(h>max){w=Math.round(w*(max/h));h=max;}
         canvas.width=w; canvas.height=h;
         canvas.getContext('2d').drawImage(img,0,0,w,h);
-        const url = canvas.toDataURL('image/jpeg', 0.75);
+        const url = canvas.toDataURL('image/jpeg', 0.55);
+        // Check size — Firestore doc limit 1MB
+        const sizeKB = Math.round(url.length * 0.75 / 1024);
+        if(sizeKB > 800){
+          toast('Gambar terlalu besar! Coba foto yang lebih kecil.');
+          resolve(); return;
+        }
         S.mediaUrls.push({url, type:'image/jpeg'});
         addPrevUrl(url, false, S.mediaUrls.length-1);
         resolve();
       };
+      img.onerror = ()=>{ toast('Gagal baca gambar'); resolve(); };
       img.src = e.target.result;
     };
+    reader.onerror = ()=>{ toast('Gagal baca file'); resolve(); };
     reader.readAsDataURL(file);
   });
 }
@@ -2017,33 +2069,54 @@ function sharePost(id, title){
 /* ══ GLOBAL CHAT ══ */
 let globalChatRef = null;
 let globalChatListener = null;
+let lastGlobalDate = '';
 
 function openGlobalChat(){
   goPage('globalchat','forward');
   const msgs = document.getElementById('globalMsgs');
   msgs.innerHTML = '';
-  if(globalChatListener) globalChatRef.off('value', globalChatListener);
+  lastGlobalDate = '';
+  if(globalChatListener && globalChatRef) globalChatRef.limitToLast(80).off('value', globalChatListener);
   globalChatRef = rtdb.ref('globalChat');
   globalChatListener = globalChatRef.limitToLast(80).on('value', snap=>{
-    if(!snap.exists()) return;
+    if(!snap.exists()){ msgs.innerHTML=`<div style="text-align:center;color:var(--muted);font-size:12px;margin-top:40px">Belum ada pesan. Mulai chat!</div>`; return; }
     const data = snap.val();
     const myUid = S.auth?.uid;
-    const name = [S.profile.first,S.profile.last].filter(Boolean).join(' ')||'Anon';
-    msgs.innerHTML = Object.values(data).sort((a,b)=>a.ts-b.ts).map(m=>{
+    const sorted = Object.values(data).sort((a,b)=>a.ts-b.ts);
+    lastGlobalDate = '';
+    msgs.innerHTML = sorted.map(m=>{
       const isMe = m.uid===myUid;
-      const avHTML = m.avUrl ? `<img src="${m.avUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : m.av||'?';
-      return `<div class="cr-msg ${isMe?'me':'them'}">
-        ${!isMe?`<div class="cr-av-sm" style="background:var(--surface3)">${avHTML}</div>`:''}
-        <div>
-          ${!isMe?`<div style="font-size:10px;color:var(--muted2);margin-bottom:2px;font-weight:600">${m.name||'User'}${getBadge(m.uid)}</div>`:''}
-          <div class="cr-bubble">${m.text}</div>
-        </div>
-      </div>`;
+      const d = new Date(m.ts);
+      const dateStr = d.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+      const timeStr = d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+      let dateSep = '';
+      if(dateStr !== lastGlobalDate){
+        lastGlobalDate = dateStr;
+        dateSep = `<div class="day-sep"><span>${dateStr}</span></div>`;
+      }
+      const avHTML = m.avUrl
+        ? `<img src="${m.avUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+        : (m.av||'?');
+      if(isMe){
+        return `${dateSep}<div class="msg-row out">
+          <div class="msg-bub">${m.text}</div>
+          <div class="msg-time">${timeStr}</div>
+        </div>`;
+      } else {
+        return `${dateSep}<div style="display:flex;gap:7px;align-items:flex-end">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--surface3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;overflow:hidden">${avHTML}</div>
+          <div class="msg-row in" style="flex:1">
+            <div class="msg-sender">${m.name||'User'}${getBadge(m.uid)}</div>
+            <div class="msg-bub">${m.text}</div>
+            <div class="msg-time">${timeStr}</div>
+          </div>
+        </div>`;
+      }
     }).join('');
     msgs.scrollTop = msgs.scrollHeight;
     const onlineCount = S.onlineUsers ? Object.keys(S.onlineUsers).length : 0;
     const globalTxt = document.getElementById('globalOnlineTxt');
-    if(globalTxt) globalTxt.textContent = onlineCount + ' user online';
+    if(globalTxt) globalTxt.textContent = onlineCount + ' online';
   });
 }
 
