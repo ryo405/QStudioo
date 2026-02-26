@@ -926,6 +926,23 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
           <div class="prof-badges" id="profBadges"><span class="prof-badge">Member</span></div>
           <div class="prof-bio" id="profBio">Belum ada bio. Edit profil untuk menambahkan.</div>
         </div>
+        <!-- XP / LEVEL BAR -->
+        <div style="margin:12px 18px 0;background:var(--surface2);border:1px solid var(--border);border-radius:13px;padding:12px 14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span id="profLevelBadge" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:800;font-size:12px;padding:3px 10px;border-radius:99px">LV 1</span>
+              <span id="profLevelTitle" style="font-size:12px;color:var(--muted2);font-weight:600">Newbie</span>
+            </div>
+            <span id="profXpTxt" style="font-size:11px;color:var(--muted2)">0 / 100 XP</span>
+          </div>
+          <div style="background:var(--surface3);border-radius:99px;height:6px;overflow:hidden">
+            <div id="profXpBar" style="height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;transition:width .6s cubic-bezier(.4,0,.2,1)"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px">
+            <button onclick="openXpEvents()" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--accent);font-size:11px;font-weight:600;padding:5px 12px;cursor:pointer;font-family:'Space Grotesk',sans-serif">⚡ Claim XP</button>
+            <button onclick="openBadgeShop()" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--accent2);font-size:11px;font-weight:600;padding:5px 12px;cursor:pointer;font-family:'Space Grotesk',sans-serif">🏅 Badge Shop</button>
+          </div>
+        </div>
         <div class="prof-stats">
           <div class="ps-item"><div class="ps-num" id="statPosts">0</div><div class="ps-lbl">Post</div></div>
           <div class="ps-item"><div class="ps-num" id="statFollowers">0</div><div class="ps-lbl">Followers</div></div>
@@ -1028,7 +1045,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
               <a class="soc-item" href="https://github.com/ryo405" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#24292e,#444)">🐙</div><div class="soc-info"><div class="soc-name">GitHub</div><div class="soc-handle">ryo405</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
             </div>
           </div>
-          <div class="set-about">MWH v2.3<br><span>Global Chat, Favorit, Notif, Rename</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
+          <div class="set-about">MWH v2.5<br><span>XP System, Level, Badges, Admin Fix</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
         </div>
       </div>
     </div>
@@ -1064,8 +1081,31 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
             </div>
           </div>
         </div>
-        <!-- Announcement -->
+        <!-- XP Management -->
         <div class="set-section">
+          <div class="set-sec-label">Kelola XP User</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <input id="adminXpUid" class="form-input" placeholder="UID atau @username user...">
+            <div style="display:flex;gap:8px">
+              <input id="adminXpAmount" class="form-input" type="number" placeholder="Jumlah XP" style="flex:1">
+              <select id="adminXpAction" class="form-input" style="flex:1;background:var(--surface2)">
+                <option value="add">Tambah</option>
+                <option value="set">Set langsung</option>
+                <option value="sub">Kurangi</option>
+              </select>
+            </div>
+            <button onclick="adminGiveXp()" style="background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;padding:11px;font-weight:700;font-size:13px;font-family:'Space Grotesk',sans-serif;cursor:pointer">⚡ Eksekusi XP</button>
+          </div>
+        </div>
+        <!-- Badge Management -->
+        <div class="set-section">
+          <div class="set-sec-label">Kasih Badge ke User</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <input id="adminBadgeUid" class="form-input" placeholder="UID user...">
+            <input id="adminBadgeId" class="form-input" placeholder="Badge ID (misal: verified, og, pro...)">
+            <button onclick="adminGiveBadge()" style="background:linear-gradient(135deg,#f7971e,#ffd200);border:none;border-radius:10px;color:#000;padding:11px;font-weight:700;font-size:13px;font-family:'Space Grotesk',sans-serif;cursor:pointer">🏅 Kasih Badge</button>
+          </div>
+        </div>
           <div class="set-sec-label">Pengumuman Global</div>
           <div style="display:flex;flex-direction:column;gap:8px">
             <textarea id="announceTxt" class="form-input" rows="3" placeholder="Ketik pengumuman untuk semua user..." style="resize:none"></textarea>
@@ -1096,7 +1136,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
   </div>
   <div class="cmt-list" id="cmtList"></div>
   <!-- Reply preview bar -->
-  <div id="replyBar" style="display:none;padding:6px 12px;background:var(--surface2);border-top:1px solid var(--border);font-size:11px;color:var(--muted2);display:none;align-items:center;gap:8px">
+  <div id="replyBar" style="padding:6px 12px;background:var(--surface2);border-top:1px solid var(--border);font-size:11px;color:var(--muted2);align-items:center;gap:8px;display:none">
     <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
     <span id="replyBarTxt">Membalas...</span>
     <button onclick="clearReply()" style="margin-left:auto;background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px;line-height:1">✕</button>
@@ -1112,6 +1152,28 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
   </div>
 </div>
 
+<!-- XP EVENTS MODAL -->
+<div class="cmt-overlay" id="xpOverlay" onclick="closeXpEvents()"></div>
+<div class="cmt-sheet" id="xpSheet" style="max-height:75vh">
+  <div class="cmt-handle"></div>
+  <div class="cmt-head"><div class="cmt-title">⚡ Claim XP</div><button class="cmt-close" onclick="closeXpEvents()">✕</button></div>
+  <div class="cmt-list" id="xpEventList"></div>
+</div>
+
+<!-- BADGE SHOP MODAL -->
+<div class="cmt-overlay" id="badgeOverlay" onclick="closeBadgeShop()"></div>
+<div class="cmt-sheet" id="badgeSheet" style="max-height:80vh">
+  <div class="cmt-handle"></div>
+  <div class="cmt-head">
+    <div>
+      <div class="cmt-title">🏅 Badge Shop</div>
+      <div style="font-size:11px;color:var(--muted2)">XP kamu: <span id="badgeShopXp">0</span></div>
+    </div>
+    <button class="cmt-close" onclick="closeBadgeShop()">✕</button>
+  </div>
+  <div class="cmt-list" id="badgeShopList"></div>
+</div>
+
 <!-- USER PROFILE MODAL -->
 <div class="cmt-overlay" id="uprofOverlay" onclick="closeUserProfile()"></div>
 <div class="cmt-sheet" id="uprofSheet" style="max-height:80vh">
@@ -1121,7 +1183,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 
 <!-- VERSION BADGE -->
 <div class="version-badge">
-  <span class="vb-name">MWH v2.3</span>
+  <span class="vb-name">MWH v2.5</span>
   <span class="vb-by">By Ryo · Qyro</span>
 </div>
 
@@ -1319,6 +1381,7 @@ function showApp(){
   setTimeout(()=>app.classList.add('show'),10);
   loadPosts();
   renderProfile();
+  loadUserXp();
   const hour=new Date().getHours();
   const greet=hour<11?'🌅 Selamat Pagi':hour<15?'☀️ Selamat Siang':hour<18?'🌤️ Selamat Sore':'🌙 Selamat Malam';
   const name=S.profile.first||'Sobat';
@@ -1326,12 +1389,13 @@ function showApp(){
 
   // Inject admin button jika owner
   if(isOwner(S.auth?.uid)){
-    const sidebar = document.getElementById('sidebar');
+    const sidebar = document.getElementById('mainSidebar');
     if(sidebar && !document.getElementById('nav-admin')){
       const adminBtn = document.createElement('button');
       adminBtn.className='nav-i'; adminBtn.id='nav-admin';
-      adminBtn.onclick=()=>{ if(!isOwner(S.auth?.uid)){toast('Akses ditolak');return;} goPage('admin','forward'); adminLoadStats(); };
-      adminBtn.innerHTML=`<svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-tip">Admin</span>`;
+      adminBtn.onclick=()=>{ goPage('admin','forward'); adminLoadStats(); };
+      adminBtn.innerHTML=`<svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="nav-tip" style="color:#ffd700">Admin</span>`;
+      adminBtn.style.cssText='border-bottom:1px solid rgba(255,215,0,.2)';
       const settingsBtn = document.getElementById('nav-settings');
       sidebar.insertBefore(adminBtn, settingsBtn);
     }
@@ -1662,7 +1726,8 @@ async function submitPost(){
     document.getElementById('prevGrid').innerHTML='';
     document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('sel'));
     S.mediaUrls=[]; S.cats=[];
-    toast('Post berhasil!');
+    toast('Post berhasil! 🎉');
+    addXp(30, 'Bikin Post');
     setTimeout(()=>goPage('home','back'),700);
   } catch(e){
     toast('Gagal post: '+e.message);
@@ -1854,6 +1919,7 @@ async function sendComment(){
   await batch.commit();
   const post=S.posts.find(p=>p.id===cmtPostId);
   if(post) sendNotif(post.uid,'comment',txt);
+  addXp(15, 'Komentar');
 }
 
 async function deleteCmt(cmtId){
@@ -2265,6 +2331,279 @@ function openGlobalChat(){
     const globalTxt = document.getElementById('globalOnlineTxt');
     if(globalTxt) globalTxt.textContent = onlineCount + ' online';
   });
+}
+
+/* ══════════════════════════════
+   XP / LEVEL SYSTEM
+══════════════════════════════ */
+const LEVELS = [
+  {lv:1,  xp:0,    title:'Newbie',      color:'#aaa'},
+  {lv:2,  xp:100,  title:'Rookie',      color:'#4ade80'},
+  {lv:3,  xp:250,  title:'Regular',     color:'#60a5fa'},
+  {lv:5,  xp:500,  title:'Active',      color:'#a78bfa'},
+  {lv:10, xp:1000, title:'Veteran',     color:'#f472b6'},
+  {lv:20, xp:2500, title:'Pro',         color:'#fbbf24'},
+  {lv:50, xp:7500, title:'Elite',       color:'#f97316'},
+  {lv:100,xp:20000,title:'Legend',      color:'#ef4444'},
+  {lv:500,xp:75000,title:'Mythic',      color:'linear-gradient(135deg,#f97316,#ef4444)'},
+  {lv:999,xp:200000,title:'GodMode',    color:'linear-gradient(135deg,#7c6fff,#ff6b8a,#ffd700)'},
+];
+const OWNER_LV = {lv:'999+', title:'Creator', color:'linear-gradient(135deg,#ffd700,#ff6b8a)'};
+
+// XP events: {id, label, xp, cooldown ms, icon}
+const XP_EVENTS = [
+  {id:'daily',    label:'Daily Login',       xp:50,  cooldown:86400000, icon:'☀️', desc:'Login setiap hari'},
+  {id:'post',     label:'Bikin Post',        xp:30,  cooldown:3600000,  icon:'📝', desc:'Post konten baru (+30 XP/jam)'},
+  {id:'watch5',   label:'Buka App 5 menit', xp:20,  cooldown:18000000, icon:'⏱️', desc:'Buka app minimal 5 menit'},
+  {id:'like10',   label:'Like 10 Post',      xp:25,  cooldown:86400000, icon:'❤️', desc:'Like 10 post hari ini'},
+  {id:'comment',  label:'Komentar',          xp:15,  cooldown:1800000,  icon:'💬', desc:'Tinggalkan komentar (+15/30mnt)'},
+  {id:'streak3',  label:'Streak 3 Hari',     xp:100, cooldown:259200000,icon:'🔥', desc:'Login 3 hari berturut-turut'},
+];
+
+function getLevel(xp){
+  if(!xp) return LEVELS[0];
+  let cur = LEVELS[0];
+  for(const l of LEVELS){ if(xp>=l.xp) cur=l; else break; }
+  return cur;
+}
+function getLevelNum(xp){
+  // Interpolate level number
+  xp = xp||0;
+  if(xp<100) return 1;
+  if(xp<250) return Math.floor(1 + (xp-100)/150 * 1);
+  if(xp<500) return Math.floor(2 + (xp-250)/250 * 2);
+  if(xp<1000) return Math.floor(5 + (xp-500)/500 * 5);
+  if(xp<2500) return Math.floor(10 + (xp-1000)/1500 * 10);
+  if(xp<7500) return Math.floor(20 + (xp-2500)/5000 * 30);
+  if(xp<20000) return Math.floor(50 + (xp-7500)/12500 * 50);
+  if(xp<75000) return Math.floor(100 + (xp-20000)/55000 * 400);
+  if(xp<200000) return Math.floor(500 + (xp-75000)/125000 * 499);
+  return 999;
+}
+function getXpForNext(xp){
+  xp=xp||0;
+  for(let i=0;i<LEVELS.length-1;i++){
+    if(xp<LEVELS[i+1].xp) return {cur:xp-LEVELS[i].xp, need:LEVELS[i+1].xp-LEVELS[i].xp, nextXp:LEVELS[i+1].xp};
+  }
+  return {cur:xp, need:xp, nextXp:xp}; // max level
+}
+
+async function loadUserXp(){
+  if(!S.auth) return;
+  try {
+    const doc = await db.collection('xp').doc(S.auth.uid).get();
+    S.xpData = doc.exists ? doc.data() : {xp:0, badges:[], claims:{}};
+    // Owner gets max XP
+    if(isOwner(S.auth.uid)) S.xpData.xp = Math.max(S.xpData.xp||0, 999999);
+    updateXpUI();
+  } catch(e){ S.xpData={xp:0,badges:[],claims:{}}; }
+}
+
+function updateXpUI(){
+  const xpData = S.xpData||{xp:0,badges:[],claims:{}};
+  const totalXp = xpData.xp||0;
+  const isOwnr = isOwner(S.auth?.uid);
+  const lvNum = isOwnr ? '999+' : getLevelNum(totalXp);
+  const lvInfo = getLevel(totalXp);
+  const {cur, need} = getXpForNext(totalXp);
+  const pct = isOwnr ? 100 : Math.min(100, Math.round(cur/need*100));
+  const title = isOwnr ? 'Creator ⚡' : lvInfo.title;
+
+  const lvBadge = document.getElementById('profLevelBadge');
+  const lvTitle = document.getElementById('profLevelTitle');
+  const xpTxt   = document.getElementById('profXpTxt');
+  const xpBar   = document.getElementById('profXpBar');
+  if(lvBadge) lvBadge.textContent = `LV ${lvNum}`;
+  if(lvTitle) lvTitle.textContent = title;
+  if(xpTxt)   xpTxt.textContent = isOwnr ? '∞ XP' : `${totalXp} / ${lvInfo.xp+need} XP`;
+  if(xpBar)   setTimeout(()=>xpBar.style.width=pct+'%', 100);
+
+  // Update badge display with earned badges
+  updateBadgeDisplay();
+}
+
+function updateBadgeDisplay(){
+  const badgeEl = document.getElementById('profBadges');
+  if(!badgeEl) return;
+  const uid=S.auth?.uid;
+  const xpData=S.xpData||{};
+  const earned=xpData.badges||[];
+  let html='';
+  if(isOwner(uid)){
+    html=`<span class="prof-badge" style="background:linear-gradient(135deg,rgba(255,215,0,.2),rgba(255,107,138,.2));border-color:rgba(255,215,0,.5);color:#ffd700;font-weight:700">⚡ Creator</span>`;
+  } else {
+    html=`<span class="prof-badge">LV ${getLevelNum(xpData.xp||0)}</span>`;
+  }
+  // Custom earned badges
+  const allBadges = getBadgeDefs();
+  earned.forEach(bid=>{
+    const b=allBadges.find(x=>x.id===bid);
+    if(b) html+=`<span class="prof-badge" style="background:${b.bg};border-color:${b.border};color:${b.color}">${b.icon} ${b.name}</span>`;
+  });
+  badgeEl.innerHTML=html;
+}
+
+async function addXp(amount, reason){
+  if(!S.auth) return;
+  if(isOwner(S.auth.uid)) return; // Owner sudah max
+  const ref = db.collection('xp').doc(S.auth.uid);
+  try {
+    await ref.set({
+      xp: firebase.firestore.FieldValue.increment(amount),
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+    S.xpData = S.xpData||{xp:0,badges:[],claims:{}};
+    S.xpData.xp = (S.xpData.xp||0)+amount;
+    updateXpUI();
+    showXpGain(amount, reason);
+  } catch(e){}
+}
+
+function showXpGain(amount, reason){
+  const el=document.createElement('div');
+  el.style.cssText=`position:fixed;bottom:80px;right:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;z-index:9999;animation:fadeUp .3s ease;pointer-events:none`;
+  el.textContent=`+${amount} XP — ${reason}`;
+  document.body.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .4s'; setTimeout(()=>el.remove(),400); },2000);
+}
+
+/* ══ XP EVENTS ══ */
+function openXpEvents(){
+  const list=document.getElementById('xpEventList');
+  const claims=S.xpData?.claims||{};
+  const now=Date.now();
+  list.innerHTML=XP_EVENTS.map(ev=>{
+    const lastClaim=claims[ev.id]||0;
+    const canClaim=now-lastClaim>ev.cooldown;
+    const remaining=ev.cooldown-(now-lastClaim);
+    const timeLeft=canClaim?'':formatTime(remaining);
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)">
+      <div style="font-size:28px;flex-shrink:0">${ev.icon}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:13px">${ev.label}</div>
+        <div style="font-size:11px;color:var(--muted2)">${ev.desc}</div>
+        ${!canClaim?`<div style="font-size:10px;color:var(--accent2);margin-top:2px">⏳ ${timeLeft}</div>`:''}
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-weight:800;font-size:14px;color:var(--accent)">+${ev.xp}</div>
+        <div style="font-size:10px;color:var(--muted2)">XP</div>
+        <button onclick="claimXpEvent('${ev.id}')" ${canClaim?'':'disabled'} style="margin-top:4px;background:${canClaim?'linear-gradient(135deg,var(--accent),var(--accent2))':'var(--surface3)'};border:none;border-radius:8px;color:${canClaim?'#fff':'var(--muted)'};padding:5px 12px;font-size:11px;font-weight:700;cursor:${canClaim?'pointer':'default'};font-family:'Space Grotesk',sans-serif">${canClaim?'Claim':'Done'}</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('xpOverlay').classList.add('open');
+  document.getElementById('xpSheet').classList.add('open');
+}
+function closeXpEvents(){ document.getElementById('xpOverlay').classList.remove('open'); document.getElementById('xpSheet').classList.remove('open'); }
+
+async function claimXpEvent(evId){
+  const ev=XP_EVENTS.find(e=>e.id===evId); if(!ev) return;
+  const claims=S.xpData?.claims||{};
+  const now=Date.now();
+  if(now-(claims[evId]||0)<ev.cooldown){ toast('Belum bisa claim!'); return; }
+  // Update claim timestamp
+  S.xpData=S.xpData||{xp:0,badges:[],claims:{}};
+  S.xpData.claims=S.xpData.claims||{};
+  S.xpData.claims[evId]=now;
+  await db.collection('xp').doc(S.auth.uid).set({claims:{[evId]:now}},{merge:true});
+  await addXp(ev.xp, ev.label);
+  toast(`✅ +${ev.xp} XP dari ${ev.label}!`);
+  openXpEvents(); // refresh
+}
+
+function formatTime(ms){
+  const h=Math.floor(ms/3600000); const m=Math.floor((ms%3600000)/60000);
+  if(h>0) return `${h}j ${m}m lagi`;
+  return `${m}m lagi`;
+}
+
+/* ══ BADGE SHOP ══ */
+function getBadgeDefs(){
+  return [
+    {id:'og',      name:'OG',       icon:'👑', xpCost:500,  bg:'rgba(255,215,0,.15)',  border:'rgba(255,215,0,.4)',  color:'#ffd700', desc:'Early adopter badge'},
+    {id:'pro',     name:'Pro',      icon:'⚡', xpCost:1000, bg:'rgba(124,111,255,.15)',border:'rgba(124,111,255,.4)',color:'#7c6fff', desc:'Pro user'},
+    {id:'artist',  name:'Artist',   icon:'🎨', xpCost:800,  bg:'rgba(255,107,138,.15)',border:'rgba(255,107,138,.4)',color:'#ff6b8a', desc:'Kreator konten'},
+    {id:'dev',     name:'Dev',      icon:'💻', xpCost:750,  bg:'rgba(61,255,160,.15)', border:'rgba(61,255,160,.4)', color:'#3dffa0', desc:'Developer badge'},
+    {id:'memer',   name:'Memer',    icon:'😂', xpCost:300,  bg:'rgba(255,179,71,.15)', border:'rgba(255,179,71,.4)', color:'#ffb347', desc:'Raja meme'},
+    {id:'hunter',  name:'Hunter',   icon:'🎯', xpCost:600,  bg:'rgba(239,68,68,.15)',  border:'rgba(239,68,68,.4)',  color:'#ef4444', desc:'Post hunter'},
+    {id:'legend',  name:'Legend',   icon:'🏆', xpCost:5000, bg:'rgba(249,115,22,.15)', border:'rgba(249,115,22,.4)', color:'#f97316', desc:'Legendary status'},
+    {id:'mythic',  name:'Mythic',   icon:'🌟', xpCost:15000,bg:'rgba(168,85,247,.15)', border:'rgba(168,85,247,.4)', color:'#a855f7', desc:'Mythic — ultra rare'},
+  ];
+}
+
+function openBadgeShop(){
+  const xpData=S.xpData||{xp:0,badges:[]};
+  const totalXp=xpData.xp||0;
+  const earned=xpData.badges||[];
+  document.getElementById('badgeShopXp').textContent=isOwner(S.auth?.uid)?'∞':totalXp;
+  const list=document.getElementById('badgeShopList');
+  list.innerHTML=getBadgeDefs().map(b=>{
+    const owned=earned.includes(b.id);
+    const canBuy=totalXp>=b.xpCost||isOwner(S.auth?.uid);
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)">
+      <div style="font-size:28px">${b.icon}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-weight:700;font-size:13px">${b.name}</span>
+          <span class="prof-badge" style="background:${b.bg};border-color:${b.border};color:${b.color};font-size:10px">${b.icon} ${b.name}</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted2)">${b.desc}</div>
+        <div style="font-size:11px;color:var(--accent);font-weight:600;margin-top:2px">⚡ ${b.xpCost} XP</div>
+      </div>
+      <button onclick="buyBadge('${b.id}')" ${owned?'disabled':''} style="background:${owned?'var(--surface3)':canBuy?'linear-gradient(135deg,var(--accent),var(--accent2))':'var(--surface3)'};border:none;border-radius:9px;color:${owned||!canBuy?'var(--muted)':'#fff'};padding:7px 14px;font-size:12px;font-weight:700;cursor:${owned||!canBuy?'default':'pointer'};font-family:'Space Grotesk',sans-serif;white-space:nowrap">
+        ${owned?'✅ Dimiliki':canBuy?'Beli':'XP Kurang'}
+      </button>
+    </div>`;
+  }).join('');
+  document.getElementById('badgeOverlay').classList.add('open');
+  document.getElementById('badgeSheet').classList.add('open');
+}
+function closeBadgeShop(){ document.getElementById('badgeOverlay').classList.remove('open'); document.getElementById('badgeSheet').classList.remove('open'); }
+
+async function buyBadge(badgeId){
+  const b=getBadgeDefs().find(x=>x.id===badgeId); if(!b) return;
+  const xpData=S.xpData||{xp:0,badges:[]};
+  if(xpData.badges?.includes(badgeId)){ toast('Udah punya!'); return; }
+  const cost=isOwner(S.auth?.uid)?0:b.xpCost;
+  if(!isOwner(S.auth?.uid)&&(xpData.xp||0)<cost){ toast(`XP kurang! Butuh ${cost} XP`); return; }
+  if(!confirm(`Beli badge "${b.name}" seharga ${cost} XP?`)) return;
+  try {
+    const ref=db.collection('xp').doc(S.auth.uid);
+    await ref.set({
+      badges:firebase.firestore.FieldValue.arrayUnion(badgeId),
+      xp:firebase.firestore.FieldValue.increment(-cost)
+    },{merge:true});
+    S.xpData.badges=[...(S.xpData.badges||[]),badgeId];
+    S.xpData.xp=(S.xpData.xp||0)-cost;
+    toast(`🏅 Badge "${b.name}" berhasil dibeli!`);
+    openBadgeShop();
+    updateXpUI();
+  } catch(e){ toast('Gagal beli badge'); }
+}
+
+/* ══ ADMIN XP TOOLS ══ */
+async function adminGiveXp(){
+  const uid=document.getElementById('adminXpUid').value.trim();
+  const amount=parseInt(document.getElementById('adminXpAmount').value)||0;
+  const action=document.getElementById('adminXpAction').value;
+  if(!uid||!amount){ toast('Isi UID dan jumlah XP!'); return; }
+  try {
+    const ref=db.collection('xp').doc(uid);
+    if(action==='add') await ref.set({xp:firebase.firestore.FieldValue.increment(amount)},{merge:true});
+    else if(action==='sub') await ref.set({xp:firebase.firestore.FieldValue.increment(-amount)},{merge:true});
+    else await ref.set({xp:amount},{merge:true});
+    toast(`✅ XP berhasil di-${action==='add'?'tambah':action==='sub'?'kurangi':'set'}: ${amount}`);
+  } catch(e){ toast('Gagal: '+e.message); }
+}
+
+async function adminGiveBadge(){
+  const uid=document.getElementById('adminBadgeUid').value.trim();
+  const bid=document.getElementById('adminBadgeId').value.trim().toLowerCase();
+  if(!uid||!bid){ toast('Isi UID dan Badge ID!'); return; }
+  try {
+    await db.collection('xp').doc(uid).set({badges:firebase.firestore.FieldValue.arrayUnion(bid)},{merge:true});
+    toast(`🏅 Badge "${bid}" diberikan ke ${uid.slice(0,8)}...`);
+  } catch(e){ toast('Gagal: '+e.message); }
 }
 
 function clearNotifDot(){
