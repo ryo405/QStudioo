@@ -444,15 +444,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 .toggle.on::after{transform:translateX(16px);}
 .set-about{text-align:center;padding:18px;color:var(--muted);font-size:11.5px;line-height:1.8;}
 .set-about span{color:var(--muted2);}
-.soc-group{background:var(--surface2);border:1px solid var(--border);border-radius:13px;overflow:hidden;}
-.soc-item{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;text-decoration:none;color:var(--text);}
-.soc-item:last-child{border-bottom:none;}
-.soc-item:hover{background:rgba(124,111,255,.07);}
-.soc-logo{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.soc-info{flex:1;}
-.soc-name{font-size:13.5px;font-weight:600;}
-.soc-handle{font-size:11.5px;color:var(--muted2);margin-top:1px;}
-.soc-arrow{color:var(--muted);}
+/* SOCIAL CARDS */
+.soc-group{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.soc-item{display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px 12px;border-radius:14px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;transition:all .2s;text-decoration:none;color:var(--text);text-align:center;}
+.soc-item:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,111,255,.15);}
+.soc-logo{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.soc-info{flex:1;width:100%;}
+.soc-name{font-size:13px;font-weight:700;}
+.soc-handle{font-size:11px;color:var(--muted2);margin-top:2px;}
+.soc-arrow{display:none;}
 
 /* BOTTOM SHEET */
 .bs-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:100;pointer-events:none;transition:background .3s;}
@@ -783,6 +783,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
             <input class="form-input" id="downloadInput" placeholder="https://mediafire.com/... link file rig dll">
           </div>
 
+          <!-- VIDEO LINK -->
+          <div class="form-group">
+            <label class="form-label">Link Video (opsional)</label>
+            <input class="form-input" id="videoInput" placeholder="https://youtube.com/... atau streamable.com/..." oninput="previewVideo(this.value)">
+            <div id="videoPreviewWrap" style="display:none;margin-top:8px;border-radius:10px;overflow:hidden;background:#000;border:1px solid var(--border)">
+              <iframe id="videoIframe" width="100%" height="200" frameborder="0" allowfullscreen style="display:block"></iframe>
+            </div>
+          </div>
+
           <!-- TUTORIAL LINK -->
           <div class="form-group">
             <label class="form-label">Link Tutorial / Demo (opsional)</label>
@@ -989,7 +998,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
               <a class="soc-item" href="https://github.com/ryo405" target="_blank"><div class="soc-logo" style="background:linear-gradient(135deg,#24292e,#444)">🐙</div><div class="soc-info"><div class="soc-name">GitHub</div><div class="soc-handle">ryo405</div></div><div class="soc-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></div></a>
             </div>
           </div>
-          <div class="set-about">QStudio v1.6<br><span>Upload Langsung, Link WA, Sosmed</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
+          <div class="set-about">QStudio v1.7<br><span>Video Embed, Bookmark, Share, Fix Upload</span><br><span style="color:var(--muted)">By Ryo · Qyro · 2025</span></div>
         </div>
       </div>
     </div>
@@ -1033,7 +1042,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 
 <!-- VERSION BADGE -->
 <div class="version-badge">
-  <span class="vb-name">QStudio v1.6</span>
+  <span class="vb-name">QStudio v1.7</span>
   <span class="vb-by">By Ryo · Qyro</span>
 </div>
 
@@ -1323,6 +1332,9 @@ function renderFeed(){
     const lnk=p.link?`<a class="post-link" href="${p.link}" target="_blank"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>${p.link}</span></a>`:'';
     const tut=p.tutorial?`<a class="post-link" href="${p.tutorial}" target="_blank" style="color:var(--accent2);border-color:rgba(255,107,138,.3)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><span>Tutorial / Demo</span></a>`:'';
     const dl=p.download?`<a class="post-link" href="${p.download}" target="_blank" style="color:var(--accent3);border-color:rgba(61,255,160,.25);background:rgba(61,255,160,.07)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Download File</span></a>`:'';
+    const vid=p.video?`<div style="margin-top:8px;border-radius:10px;overflow:hidden;background:#000;border:1px solid var(--border)">${getVideoEmbed(p.video)}</div>`:'';
+    const bkm=S.bookmarks?.includes(p.id);
+
     const dev=p.dev?`<div class="post-dev">by <b>${p.dev}</b></div>`:'';
     const liked=(p.likedBy||[]).includes(uid);
     const likesCount=(p.likedBy||[]).length;
@@ -1334,7 +1346,7 @@ function renderFeed(){
         <div class="post-time">${p.timeStr||''}</div>
       </div>
       ${media?`<div>${media}</div>`:''}
-      <div class="post-body">${p.cap?`<div class="post-cap">${p.cap}</div>`:''}${dl}${tut}${lnk}${dev}</div>
+      <div class="post-body">${p.cap?`<div class="post-cap">${p.cap}</div>`:''}${dl}${tut}${lnk}${vid}${dev}</div>
       <div class="post-actions" onclick="event.stopPropagation()">
         <button class="act-btn ${liked?'liked':''}" onclick="toggleLike('${p.id}',this)">
           <svg width="13" height="13" fill="${liked?'currentColor':'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -1343,6 +1355,12 @@ function renderFeed(){
         <button class="act-btn" onclick="event.stopPropagation();openComments('${p.id}')">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           <span>${commentsCount}</span>
+        </button>
+        <button class="act-btn ${bkm?'liked':''}" onclick="event.stopPropagation();toggleBookmark('${p.id}',this)" title="Simpan">
+          <svg width="13" height="13" fill="${bkm?'currentColor':'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <button class="act-btn" onclick="event.stopPropagation();sharePost('${p.id}','${(p.cap||p.name||'Post').replace(/'/g,'').slice(0,30)}')" title="Share">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         </button>
         ${(uid===p.uid||isOwner(uid))?`<button class="act-btn" style="margin-left:auto;color:#ff4d4d" onclick="event.stopPropagation();deletePost('${p.id}')">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
@@ -1396,8 +1414,7 @@ function openBS(id){
 }
 function closeBS(){document.getElementById('bsOverlay').classList.remove('open');document.getElementById('bsSheet').classList.remove('open');}
 
-/* ══ UPLOAD — ImgBB API langsung ══ */
-const IMGBB_KEY = '5b6f5f4f7c0b2c0e7b3a4d6f8e9c1a2b'; // Free API key
+/* ══ UPLOAD — Base64 compressed, no redirect ══ */
 S.mediaUrls = [];
 
 async function uploadImages(files){
@@ -1406,49 +1423,31 @@ async function uploadImages(files){
   const bar = document.getElementById('uploadBar');
   const status = document.getElementById('uploadStatus');
   progress.style.display='block';
-  
+
   for(let i=0; i<files.length; i++){
     const file = files[i];
-    status.textContent = `Mengupload ${i+1}/${files.length}...`;
-    bar.style.width = ((i/files.length)*100)+'%';
-    
-    try {
-      const fd = new FormData();
-      fd.append('image', file);
-      fd.append('key', IMGBB_KEY);
-      const res = await fetch('https://api.imgbb.com/1/upload', {method:'POST', body:fd});
-      const data = await res.json();
-      if(data.success){
-        const url = data.data.display_url;
-        S.mediaUrls.push({url, type:'image/jpeg'});
-        addPrevUrl(url, false, S.mediaUrls.length-1);
-        bar.style.width = ((i+1)/files.length*100)+'%';
-      } else {
-        // Fallback: pakai base64 lokal
-        await uploadAsBase64(file);
-      }
-    } catch(e){
-      await uploadAsBase64(file);
-    }
+    status.textContent = `Memproses ${i+1}/${files.length}...`;
+    bar.style.width = ((i/files.length)*80+10)+'%';
+    await uploadAsBase64(file);
   }
-  
-  status.textContent = 'Upload selesai!';
-  setTimeout(()=>{ progress.style.display='none'; bar.style.width='0%'; }, 1500);
+
+  bar.style.width='100%';
+  status.textContent='Selesai!';
+  setTimeout(()=>{ progress.style.display='none'; bar.style.width='0%'; }, 1200);
 }
 
 async function uploadAsBase64(file){
   return new Promise(resolve=>{
     const reader = new FileReader();
     reader.onload = e=>{
-      // Kompres dulu
       const img = new Image();
       img.onload = ()=>{
         const canvas = document.createElement('canvas');
         let w=img.width, h=img.height;
-        const max=800; if(w>max){h=h*(max/w);w=max;}
+        const max=900; if(w>max){h=Math.round(h*(max/w));w=max;}
         canvas.width=w; canvas.height=h;
         canvas.getContext('2d').drawImage(img,0,0,w,h);
-        const url = canvas.toDataURL('image/jpeg',0.7);
+        const url = canvas.toDataURL('image/jpeg', 0.75);
         S.mediaUrls.push({url, type:'image/jpeg'});
         addPrevUrl(url, false, S.mediaUrls.length-1);
         resolve();
@@ -1477,6 +1476,7 @@ async function submitPost(){
   const link=document.getElementById('linkInput').value.trim();
   const tutorial=document.getElementById('tutorialInput').value.trim();
   const download=document.getElementById('downloadInput').value.trim();
+  const video=document.getElementById('videoInput').value.trim();
   if(!cap && S.mediaUrls.length===0){ toast('Isi caption atau tambah gambar dulu!'); return; }
 
   const btn=document.querySelector('.submit-btn');
@@ -1494,7 +1494,7 @@ async function submitPost(){
       name, av: initials,
       bg: 'linear-gradient(135deg,#7c6fff,#ff6b8a)',
       avUrl: prof.avUrl||'',
-      cap, dev, link, tutorial, download,
+      cap, dev, link, tutorial, download, video,
       cats: [...S.cats],
       files: [...S.mediaUrls],
       timeStr: now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),
@@ -1504,7 +1504,7 @@ async function submitPost(){
     });
 
     // Reset form
-    ['capInput','devInput','linkInput','tutorialInput','downloadInput'].forEach(id=>{
+    ['capInput','devInput','linkInput','tutorialInput','downloadInput','videoInput'].forEach(id=>{
       const el=document.getElementById(id); if(el) el.value='';
     });
     document.getElementById('prevGrid').innerHTML='';
@@ -1925,6 +1925,51 @@ async function updateFollowerCount(){
     if(fEl) fEl.textContent = followersSnap.size;
     if(fgEl) fgEl.textContent = followingSnap.size;
   } catch(e){}
+}
+
+function getVideoEmbed(url){
+  // YouTube
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+  if(ytMatch) return `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen style="display:block"></iframe>`;
+  // Streamable
+  const stMatch = url.match(/streamable\.com\/([^?\s]+)/);
+  if(stMatch) return `<iframe width="100%" height="200" src="https://streamable.com/e/${stMatch[1]}" frameborder="0" allowfullscreen style="display:block"></iframe>`;
+  // Direct video
+  if(url.match(/\.(mp4|webm|mov)$/i)) return `<video src="${url}" controls style="width:100%;max-height:220px;display:block"></video>`;
+  return `<a href="${url}" target="_blank" class="post-link" style="color:var(--accent2)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><span>Tonton Video</span></a>`;
+}
+
+function previewVideo(url){
+  const wrap = document.getElementById('videoPreviewWrap');
+  const iframe = document.getElementById('videoIframe');
+  if(!url){ wrap.style.display='none'; return; }
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+  const stMatch = url.match(/streamable\.com\/([^?\s]+)/);
+  if(ytMatch){ iframe.src=`https://www.youtube.com/embed/${ytMatch[1]}`; wrap.style.display='block'; }
+  else if(stMatch){ iframe.src=`https://streamable.com/e/${stMatch[1]}`; wrap.style.display='block'; }
+  else{ wrap.style.display='none'; }
+}
+
+// BOOKMARK
+if(!S.bookmarks) S.bookmarks = JSON.parse(localStorage.getItem('qs_bkm')||'[]');
+function toggleBookmark(id, btn){
+  const idx = S.bookmarks.indexOf(id);
+  if(idx>-1){ S.bookmarks.splice(idx,1); toast('Bookmark dihapus'); }
+  else { S.bookmarks.push(id); toast('Post disimpan!'); }
+  localStorage.setItem('qs_bkm', JSON.stringify(S.bookmarks));
+  renderFeed();
+}
+
+// SHARE
+function sharePost(id, title){
+  const url = `${location.origin}${location.pathname}#post-${id}`;
+  if(navigator.share){
+    navigator.share({title:'QStudio — '+title, url});
+  } else {
+    navigator.clipboard.writeText(url).then(()=>toast('Link disalin!')).catch(()=>{
+      toast('Link: '+url);
+    });
+  }
 }
 
 function scrollToTop(){
