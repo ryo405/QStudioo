@@ -1054,8 +1054,7 @@ const splashInterval = setInterval(()=>{
       }, 500);
     }, 200);
   }
-
-async function loadUserProfile(uid){
+}, 30);
   try {
     const doc = await db.collection('users').doc(uid).get();
     if(doc.exists){
